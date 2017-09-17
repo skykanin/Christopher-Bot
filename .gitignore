@@ -1,2 +1,5 @@
 #Removes .vscode settings
 .vscode
+
+#Remove config files with sensitive data
+config.json
