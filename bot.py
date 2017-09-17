@@ -1,5 +1,4 @@
 import discord
-import asyncio
 import json
 from discord.ext import commands
 
@@ -26,8 +25,27 @@ async def ping(*args):
 
 @client.command(pass_context=True)
 async def mute(ctx):
-    return(await client.say("User {} is now muted".format(ctx.message.content[5:])))
+    hasRole = False
+    serverRoles = ctx.message.server.roles
+    for e in ctx.message.author.roles:
+        if e.name == "Admin":
+            hasRole = True
+    if hasRole and ctx.message.mentions:
+        rolesToAdd = get_role(serverRoles, 'Muted')
+        memberToMute = ctx.message.server.get_member(ctx.message.mentions[0].id)
+        await client.add_roles(memberToMute, rolesToAdd)
+        return(await client.say("User {} is now muted".format(ctx.message.mentions[0])))
+    elif hasRole and not ctx.message.mentions:
+        return(await client.say("You haven't passed an argument. The command is: !mute <mentionUser>"))
+    else:
+        return(await client.say("You don't have permission to use this command"))
 
+def get_role(server_roles, target_name):
+    for each in server_roles:
+        if each.name == target_name:
+            return each
+    print("Didn't find role")
+    return None
     
 @client.event
 async def on_message(message):
