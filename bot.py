@@ -9,7 +9,7 @@ bot_prefix = config["prefix"]
 
 client = commands.Bot(description=bot_description, command_prefix=bot_prefix)
 
-list_of_strings = ['add a reaction', 'add rxn', 'ok', 'topkek']
+list_of_strings = ['best lang', 'what is the best programming language?', 'what language is the best?']
 dict_of_roles = {} #user_id: rolesList[]
 
 @client.event
@@ -25,7 +25,7 @@ async def ping(*args):
     return(await client.say("Pong!"))
 
 @client.command(pass_context=True)
-async def mute(ctx):
+async def mute(ctx): #fuck shitters
     hasRole = False
     serverRoles = ctx.message.server.roles
     for e in ctx.message.author.roles:
@@ -48,7 +48,7 @@ async def mute(ctx):
         return(await client.say("You don't have permission to use this command <:FeelsRageMan:356757133393657867>"))
 
 @client.command(pass_context=True)
-async def unmute(ctx):
+async def unmute(ctx): #uncuck shitters
     hasRole = False
     serverRoles = ctx.message.server.roles
     for e in ctx.message.author.roles:
@@ -80,10 +80,22 @@ def get_role(server_roles, target_name):
     print("Didn't find role")
     return None
     
+@client.command(pass_context=False)
+async def about():
+    return(await client.say("```markdown\nHello, I am Christopher. \nI am an administration bot made by Skykanin, written in Python using the discord.py API. If you want to look at my code \
+    checkout my github repository [link](https://github.com/skykanin/Christopher-Bot).```"))
+
+@client.command(pass_context=False)
+async def commands():
+    return(await client.say("For a full list of all my commands and how to use them, checkout my github repository (https://github.com/skykanin/Christopher-Bot) README file"))
+
 @client.event
 async def on_message(message):
     if message.content.lower() in list_of_strings:
-        await client.add_reaction(message, "👌")
+        await client.add_reaction(message, "🐢")
+        await client.add_reaction(message, "🚀")
+    if message.content.lower() == "the power of js":
+        await client.add_reaction(message, ":GODSTINY:366936804273815552")
     await client.process_commands(message)
-
+        
 client.run(config["token"])
