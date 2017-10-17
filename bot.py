@@ -1,5 +1,6 @@
 import discord
 import json
+import twitter
 from discord.ext import commands
 
 config = json.loads(open("config.json", "r").read())
@@ -7,10 +8,16 @@ config = json.loads(open("config.json", "r").read())
 bot_description = "Admin bot"
 bot_prefix = config["prefix"]
 
+consumerKey = config["consumer_key"]
+consumerSecret = config["consumer_secret"]
+accessTokenKey = config["access_token_key"]
+accessTokenSecret = config["accessTokenSecret"]
+
+api = twitter.Api(consumer_key=[consumerKey], consumer_secret=[consumerSecret], access_token_key=[accessTokenKey], access_token_secret=[accessTokenSecret])
 client = commands.Bot(description=bot_description, command_prefix=bot_prefix)
 
 list_of_strings = ['best lang', 'what is the best programming language?', 'what language is the best?']
-dict_of_roles = {} #user_id: rolesList[]
+dict_of_roles = {}
 
 @client.event
 async def on_ready():
@@ -79,7 +86,11 @@ def get_role(server_roles, target_name):
             return each
     print("Didn't find role")
     return None
+
+@client.command(pass_context=False)
+async def twitter():
     
+
 @client.command(pass_context=False)
 async def about():
     return(await client.say("```markdown\nHello, I am Christopher. \nI am an administration bot made by Skykanin, written in Python using the discord.py API. If you want to look at my code \
