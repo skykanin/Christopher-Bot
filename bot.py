@@ -1,5 +1,6 @@
 import discord
 import json
+import pickle
 import twitter
 from discord.ext import commands
 
@@ -17,6 +18,7 @@ api = twitter.Api(consumer_key=consumerKey, consumer_secret=consumerSecret, acce
 client = commands.Bot(description=bot_description, command_prefix=bot_prefix)
 
 list_of_strings = ['best lang', 'what is the best programming language?', 'what language is the best?']
+stebenId = 4726147296
 dict_of_roles = {}
 
 @client.event
@@ -87,10 +89,14 @@ def get_role(server_roles, target_name):
     print("Didn't find role")
     return None
 
-@client.command(pass_context=True)
-async def twitter(ctx):
-    #print(api.GetUser(25073877))
-    print(api.GetListTimeLine(25073877))
+@client.command(pass_context=False)
+async def twitter():
+    jsonObject = str(api.GetUserTimeline(user_id=stebenId, count=1, exclude_replies=True)[0])
+    mostRecentTweetObject = json.loads(jsonObject)
+    screenName = mostRecentTweetObject["user"]["screen_name"]
+    tweetId = mostRecentTweetObject["id_str"]
+    tweetUrl = "https://twitter.com/{0}/status/{1}".format(screenName, tweetId)
+    return(await client.say(tweetUrl))
     
 
 @client.command(pass_context=False)
