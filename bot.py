@@ -11,9 +11,9 @@ bot_prefix = config["prefix"]
 consumerKey = config["consumer_key"]
 consumerSecret = config["consumer_secret"]
 accessTokenKey = config["access_token_key"]
-accessTokenSecret = config["accessTokenSecret"]
+accessTokenSecret = config["access_token_secret"]
 
-api = twitter.Api(consumer_key=[consumerKey], consumer_secret=[consumerSecret], access_token_key=[accessTokenKey], access_token_secret=[accessTokenSecret])
+api = twitter.Api(consumer_key=consumerKey, consumer_secret=consumerSecret, access_token_key=accessTokenKey, access_token_secret=accessTokenSecret)
 client = commands.Bot(description=bot_description, command_prefix=bot_prefix)
 
 list_of_strings = ['best lang', 'what is the best programming language?', 'what language is the best?']
@@ -87,8 +87,10 @@ def get_role(server_roles, target_name):
     print("Didn't find role")
     return None
 
-@client.command(pass_context=False)
-async def twitter():
+@client.command(pass_context=True)
+async def twitter(ctx):
+    #print(api.GetUser(25073877))
+    print(api.GetListTimeLine(25073877))
     
 
 @client.command(pass_context=False)
