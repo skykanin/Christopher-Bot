@@ -1,8 +1,9 @@
 import discord
-import json
-import pickle
-import twitter
 from discord.ext import commands
+import twitter
+import json
+import datetime
+import pytz
 
 config = json.loads(open("config.json", "r").read())
 
@@ -89,15 +90,64 @@ def get_role(server_roles, target_name):
     print("Didn't find role")
     return None
 
-@client.command(pass_context=False)
-async def twitter():
-    jsonObject = str(api.GetUserTimeline(user_id=stebenId, count=1, exclude_replies=True)[0])
-    mostRecentTweetObject = json.loads(jsonObject)
-    screenName = mostRecentTweetObject["user"]["screen_name"]
-    tweetId = mostRecentTweetObject["id_str"]
-    tweetUrl = "https://twitter.com/{0}/status/{1}".format(screenName, tweetId)
-    return(await client.say(tweetUrl))
+@client.command(pass_context=True)
+async def twitter(ctx):
+    tweetObject = json.loads(str(api.GetUserTimeline(user_id=stebenId, count=1, exclude_replies=True)[0]))
+
+    embed = discord.Embed(
+        title = "Go to tweet",
+        description = tweetObject["text"],
+        url = "https://twitter.com/{0}/status/{1}".format(tweetObject["user"]["screen_name"], tweetObject["id_str"]),
+        color = 0x00aced
+    )
+    embed.set_author(
+        name = tweetObject["user"]["screen_name"] + " (" + tweetObject["user"]["name"] + ")",
+        url = "https://twitter.com/" + tweetObject["user"]["screen_name"],
+        icon_url = tweetObject["user"]["profile_image_url"]
+    )
+    utcTime = buildDate(tweetObject["created_at"][4:].split(' ')) #Oct 18 20:11:48 +0000 2017
+    localTime = utcTime.astimezone(pytz.timezone('Europe/Oslo')).strftime('%b %d, %Y' + ' at ' + '%H:%M' + ' Central European')
+    embed.set_footer(
+       text = localTime
+    )
+    return(await client.send_message(ctx.message.channel, embed=embed))
     
+def buildDate(dateArray):
+    seconds = int(dateArray[2][6:8])
+    minutes = int(dateArray[2][3:5])
+    hours = int(dateArray[2][0:2])
+    day = int(dateArray[1])
+    month = int(findMonthInt(dateArray[0]))
+    year = int(dateArray[4])
+    return(datetime.datetime(year, month, day, hours, minutes, seconds, 0, tzinfo=pytz.UTC))
+
+def findMonthInt(monthString):
+    if(monthString == "Jan"):
+        return(1)
+    elif(monthString == "Feb"):
+        return(2)
+    elif(monthString == "Mar"):
+        return(3)
+    elif(monthString == "Apr"):
+        return(4)
+    elif(monthString == "May"):
+        return(5)
+    elif(monthString == "Jun"):
+        return(6)
+    elif(monthString == "Jul"):
+        return(7)
+    elif(monthString == "Aug"):
+        return(8)
+    elif(monthString == "Sep"):
+        return(9)
+    elif(monthString == "Oct"):
+        return(10)
+    elif(monthString == "Nov"):
+        return(11)
+    elif(monthString == "Dec"):
+        return(12)
+    else:
+        return None
 
 @client.command(pass_context=False)
 async def about():
