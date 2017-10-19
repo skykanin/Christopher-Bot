@@ -155,7 +155,7 @@ def findMonthInt(monthString):
 
 @client.command(pass_context=False)
 async def live():
-      stream = twitchClient.streams.get_live_stream("18074328", stream_type)
+      stream = twitchClient.streams.streams.get_live_stream("18074328", stream_type)
       print(stream)
 
 @client.command(pass_context=True)
