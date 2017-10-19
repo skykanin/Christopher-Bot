@@ -1,6 +1,7 @@
 import discord
 from discord.ext import commands
 import twitter
+from twitch import TwitchClient
 import json
 import datetime
 import pytz
@@ -9,14 +10,16 @@ config = json.loads(open("config.json", "r").read())
 
 bot_description = "Admin bot"
 bot_prefix = config["prefix"]
-
 consumerKey = config["consumer_key"]
 consumerSecret = config["consumer_secret"]
 accessTokenKey = config["access_token_key"]
 accessTokenSecret = config["access_token_secret"]
+clientId = config["twitch_client_id"]
 
-api = twitter.Api(consumer_key=consumerKey, consumer_secret=consumerSecret, access_token_key=accessTokenKey, access_token_secret=accessTokenSecret)
+#Bot, twitter, twitch
 client = commands.Bot(description=bot_description, command_prefix=bot_prefix)
+api = twitter.Api(consumer_key=consumerKey, consumer_secret=consumerSecret, access_token_key=accessTokenKey, access_token_secret=accessTokenSecret)
+twitchClient = TwitchClient(client_id=clientId)
 
 list_of_strings = ['best lang', 'what is the best programming language?', 'what language is the best?']
 stebenId = 4726147296
