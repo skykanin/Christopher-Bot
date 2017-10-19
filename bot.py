@@ -22,7 +22,7 @@ api = twitter.Api(consumer_key=consumerKey, consumer_secret=consumerSecret, acce
 twitchClient = TwitchClient(client_id=clientId)
 
 list_of_strings = ['best lang', 'what is the best programming language?', 'what language is the best?']
-stebenId = 4726147296
+stebenTwitterId = 4726147296
 dict_of_roles = {}
 adminRoleName = "Admin"
 
@@ -96,7 +96,7 @@ def get_role(server_roles, target_name):
 
 @client.command(pass_context=True)
 async def twitter(ctx):
-    tweetObject = json.loads(str(api.GetUserTimeline(user_id=stebenId, count=1, exclude_replies=True)[0]))
+    tweetObject = json.loads(str(api.GetUserTimeline(user_id=stebenTwitterId, count=1, exclude_replies=True)[0]))
 
     embed = discord.Embed(
         title = "Go to tweet",
@@ -155,7 +155,7 @@ def findMonthInt(monthString):
 
 @client.command(pass_context=False)
 async def live():
-      stream = twitchClient.streams.get_live_streams(channel="18074328", stream_type="STREAM_TYPE_LIVE")
+      stream = twitchClient.streams.get_live_streams(channel="18074328", stream_type="live")
       print(stream)
 
 @client.command(pass_context=True)
