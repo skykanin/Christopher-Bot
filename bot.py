@@ -21,6 +21,7 @@ client = commands.Bot(description=bot_description, command_prefix=bot_prefix)
 list_of_strings = ['best lang', 'what is the best programming language?', 'what language is the best?']
 stebenId = 4726147296
 dict_of_roles = {}
+adminRoleName = "Admin"
 
 @client.event
 async def on_ready():
@@ -39,7 +40,7 @@ async def mute(ctx): #fuck shitters
     hasRole = False
     serverRoles = ctx.message.server.roles
     for e in ctx.message.author.roles:
-        if e.name == "Admin":
+        if e.name == adminRoleName:
             hasRole = True
     if hasRole and ctx.message.mentions:
         rolesToAdd = get_role(serverRoles, 'Muted')
@@ -62,7 +63,7 @@ async def unmute(ctx): #uncuck shitters
     hasRole = False
     serverRoles = ctx.message.server.roles
     for e in ctx.message.author.roles:
-        if e.name == "Admin":
+        if e.name == adminRoleName:
             hasRole = True
     if hasRole and ctx.message.mentions:
         roleToRemove = get_role(serverRoles, 'Muted')
@@ -105,19 +106,19 @@ async def twitter(ctx):
         url = "https://twitter.com/" + tweetObject["user"]["screen_name"],
         icon_url = tweetObject["user"]["profile_image_url"]
     )
-    utcTime = buildDate(tweetObject["created_at"][4:].split(' ')) #Oct 18 20:11:48 +0000 2017
+    utcTime = buildDate(tweetObject["created_at"][4:].split(' '))
     localTime = utcTime.astimezone(pytz.timezone('Europe/Oslo')).strftime('%b %d, %Y' + ' at ' + '%H:%M' + ' Central European')
     embed.set_footer(
        text = localTime
     )
     return(await client.send_message(ctx.message.channel, embed=embed))
     
-def buildDate(dateArray):
+def buildDate(dateArray): #["Oct", "18", "20:11:48", +0000, "2017"]
     seconds = int(dateArray[2][6:8])
     minutes = int(dateArray[2][3:5])
     hours = int(dateArray[2][0:2])
     day = int(dateArray[1])
-    month = int(findMonthInt(dateArray[0]))
+    month = findMonthInt(dateArray[0])
     year = int(dateArray[4])
     return(datetime.datetime(year, month, day, hours, minutes, seconds, 0, tzinfo=pytz.UTC))
 
