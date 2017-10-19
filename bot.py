@@ -150,8 +150,8 @@ def findMonthInt(monthString):
     else:
         return None
 
-@client.command(pass_context=False)
-async def about():
+@client.command(pass_context=True)
+async def about(ctx):
     embed = discord.Embed(
         title = "I am Christopher Bot",
         description = "I am an administration bot made by Skykanin, written in Python using the discord.py API. If you want to look at my code\
