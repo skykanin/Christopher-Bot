@@ -153,6 +153,11 @@ def findMonthInt(monthString):
     else:
         return None
 
+@client.command(pass_context=False)
+async dev live():
+      stream = twitchClient.stream.get_live_stream("18074328", stream_type)
+      print(stream)
+
 @client.command(pass_context=True)
 async def about(ctx):
     embed = discord.Embed(
@@ -167,6 +172,7 @@ async def about(ctx):
         icon_url = "https://i.imgur.com/vpCyIaM.png"
     )
     return(await client.send_message(ctx.message.channel, embed=embed))
+
 
 @client.command(pass_context=False)
 async def commands():
