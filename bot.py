@@ -155,8 +155,13 @@ def findMonthInt(monthString):
 
 @client.command(pass_context=False)
 async def live():
-      stream = twitchClient.streams.get_live_streams(channel="18074328", stream_type="live")
-      print(stream)
+    stream = twitchClient.streams.get_live_streams(channel="18074328", stream_type="live")
+    channelName = twitchClient.channels.get_by_id(18074328).name
+    if stream:
+        return(await client.say("{0} is live right now <:WhoahDude:309736750689943552>".format(channelName)))
+    else:
+        return(await client.say("{0} is not live right now 😦".format(channelName)))
+    
 
 @client.command(pass_context=True)
 async def about(ctx):
