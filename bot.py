@@ -162,7 +162,7 @@ async def about():
     embed.set_author(
         name = "skykanin",
         url = "https://github.com/skykanin",
-        icon_url = tweetObject["user"]["profile_image_url"]
+        icon_url = "https://i.imgur.com/vpCyIaM.png"
     )
     '''
     utcTime = buildDate(tweetObject["created_at"][4:].split(' '))
