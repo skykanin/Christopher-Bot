@@ -48,7 +48,7 @@ async def mute(ctx): #fuck shitters
         try:
             await client.remove_roles(memberToMute, *memberToMute.roles)
         except discord.Forbidden:
-            return(await client.say("I don't have permission to do that! <:monkaS:356891254006611970>"))
+            return(await client.say("I don't have permission to do that! <:pepoS:350644750191165441>"))
         dict_of_roles[memberToMute.id] = memberToMute.roles #Adds member to the mute list
         print(dict_of_roles)
         await client.add_roles(memberToMute, rolesToAdd)
@@ -56,7 +56,7 @@ async def mute(ctx): #fuck shitters
     elif hasRole and not ctx.message.mentions:
         return(await client.say("You haven't passed an argument. The command is: !mute <mentionUser>"))
     else:
-        return(await client.say("You don't have permission to use this command <:FeelsRageMan:356757133393657867>"))
+        return(await client.say("You don't have permission to use this command <:OverRustle:286162736625352716>"))
 
 @client.command(pass_context=True)
 async def unmute(ctx): #uncuck shitters
@@ -75,14 +75,14 @@ async def unmute(ctx): #uncuck shitters
         try:
             await client.remove_roles(memberToUnMute, roleToRemove)
         except discord.Forbidden:
-            return(await client.say("I don't have permission to do that! <:monkaS:356891254006611970>"))
+            return(await client.say("I don't have permission to do that! <:pepoS:350644750191165441>"))
         await client.add_roles(memberToUnMute, *rolesToAdd)
         dict_of_roles.pop(memberToUnMute.id) #Removes member from the mute list
         return(await client.say("User {} is now unmuted".format(ctx.message.mentions[0])))
     elif hasRole and not ctx.message.mentions:
         return(await client.say("You haven't passed an argument. The command is: !mute <mentionUser>"))
     else:
-        return(await client.say("You don't have permission to use this command <:FeelsRageMan:356757133393657867>"))
+        return(await client.say("You don't have permission to use this command <:OverRustle:286162736625352716>"))
 
 def get_role(server_roles, target_name):
     for each in server_roles:
@@ -165,7 +165,7 @@ async def on_message(message):
         await client.add_reaction(message, "🐢")
         await client.add_reaction(message, "🚀")
     if message.content.lower() == "the power of js":
-        await client.add_reaction(message, ":GODSTINY:366936804273815552")
+        await client.add_reaction(message, ":GODSTINY:347438305601912833")
     await client.process_commands(message)
         
 client.run(config["token"])
