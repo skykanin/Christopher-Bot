@@ -152,8 +152,25 @@ def findMonthInt(monthString):
 
 @client.command(pass_context=False)
 async def about():
-    return(await client.say("```markdown\nHello, I am Christopher. \nI am an administration bot made by Skykanin, written in Python using the discord.py API. If you want to look at my code \
-    checkout my github repository [link](https://github.com/skykanin/Christopher-Bot).```"))
+    embed = discord.Embed(
+        title = "I am Christopher Bot",
+        description = "I am an administration bot made by Skykanin, written in Python using the discord.py API. If you want to look at my code\
+        checkout my github repository",
+        url = "https://github.com/skykanin/Christopher-Bot",
+        color = 0xffffff
+    )
+    embed.set_author(
+        name = "skykanin",
+        url = "https://github.com/skykanin",
+        icon_url = tweetObject["user"]["profile_image_url"]
+    )
+    '''
+    utcTime = buildDate(tweetObject["created_at"][4:].split(' '))
+    localTime = utcTime.astimezone(pytz.timezone('Europe/Oslo')).strftime('%b %d, %Y' + ' at ' + '%H:%M' + ' Central European')
+    embed.set_footer(
+       text = localTime
+    )'''
+    return(await client.send_message(ctx.message.channel, embed=embed))
 
 @client.command(pass_context=False)
 async def commands():
