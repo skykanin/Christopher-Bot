@@ -48,13 +48,19 @@ async def mute(ctx): #fuck shitters
     if hasRole and ctx.message.mentions:
         rolesToAdd = get_role(serverRoles, 'Muted')
         memberToMute = ctx.message.server.get_member(ctx.message.mentions[0].id)
+        rolesToSave = memberToMute.roles
         try:
+            print("Roles to remove", memberToMute.roles)
             await client.remove_roles(memberToMute, *memberToMute.roles)
+            print("Roles after removal", memberToMute.roles)
         except discord.Forbidden:
             return(await client.say("I don't have permission to do that! <:pepoS:350644750191165441>"))
-        dict_of_roles[memberToMute.id] = memberToMute.roles #Adds member to the mute list
-        print(dict_of_roles)
+        except discord.HTTPException:
+            return(await client.say("Failed to remove roles! <:pepoS:350644750191165441>"))
+        dict_of_roles[memberToMute.id] = rolesToSave #Adds member to the mute list
+        print("Saved Original Roles", rolesToSave)
         await client.add_roles(memberToMute, rolesToAdd)
+        print("Roles after adding mute role", memberToMute.roles)
         return(await client.say("User {} is now muted".format(ctx.message.mentions[0])))
     elif hasRole and not ctx.message.mentions:
         return(await client.say("You haven't passed an argument. The command is: !mute <mentionUser>"))
@@ -73,13 +79,16 @@ async def unmute(ctx): #uncuck shitters
         memberToUnMute = ctx.message.server.get_member(ctx.message.mentions[0].id)
         try:
             rolesToAdd = dict_of_roles[memberToUnMute.id]
+            print("Roles to add", rolesToAdd)
         except KeyError:
             return(await client.say("User isn't muted"))
         try:
             await client.remove_roles(memberToUnMute, roleToRemove)
+            print("Roles after removing mute role", memberToUnMute.roles)
         except discord.Forbidden:
             return(await client.say("I don't have permission to do that! <:pepoS:350644750191165441>"))
         await client.add_roles(memberToUnMute, *rolesToAdd)
+        print("Roles after giving back original roles", memberToUnMute.roles)
         dict_of_roles.pop(memberToUnMute.id) #Removes member from the mute list
         return(await client.say("User {} is now unmuted".format(ctx.message.mentions[0])))
     elif hasRole and not ctx.message.mentions:
