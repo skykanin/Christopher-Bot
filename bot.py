@@ -219,6 +219,7 @@ async def on_message(message):
     #print("Check author", message.author.id == client.user.id)
     if message.author.id == client.user.id:
         #print("Ignore selfwritten messages")
+        None
     elif message.content == savedEmote:
         counter+=1
         print(counter)
