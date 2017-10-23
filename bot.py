@@ -200,7 +200,7 @@ async def on_message(message):
     if message.content.lower() == "the power of js":
         await client.add_reaction(message, ":GODSTINY:347438305601912833")
     if message.content.lower() == "hot coco":
-        await client.add_reaction(message, ":pepeComfy:359903319558193152")
+        await client.add_reaction(message, ":pepeComfy:372014257044193302")
     await client.process_commands(message)
         
 client.run(config["token"])
