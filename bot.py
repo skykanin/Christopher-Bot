@@ -21,10 +21,16 @@ client = commands.Bot(description=bot_description, command_prefix=bot_prefix)
 api = twitter.Api(consumer_key=consumerKey, consumer_secret=consumerSecret, access_token_key=accessTokenKey, access_token_secret=accessTokenSecret)
 twitchClient = TwitchClient(client_id=clientId)
 
+#message react
 list_of_strings = ['best lang', 'what is the best programming language?', 'what language is the best?']
+#twitter
 stebenTwitterId = 4726147296
+#Mute and unmute
 dict_of_roles = {}
 adminRoleName = "Admin"
+#Combo counter
+# savedEmote = ""
+# counter = 0
 
 @client.event
 async def on_ready():
@@ -32,7 +38,6 @@ async def on_ready():
     print("Name: {}".format(client.user.name))
     print("ID: {}".format(client.user.id))
     print(discord.__version__)
-
 
 @client.command()
 async def ping(*args):
@@ -192,8 +197,15 @@ async def about(ctx):
 async def commands():
     return(await client.say("For a full list of all my commands and how to use them, checkout my github repository (https://github.com/skykanin/Christopher-Bot) README file"))
 
+
+savedEmote = ""
+counter = 0
+
 @client.event
 async def on_message(message):
+    global savedEmote
+    global counter
+
     if message.content.lower() in list_of_strings:
         await client.add_reaction(message, "🐢")
         await client.add_reaction(message, "🚀")
@@ -201,6 +213,28 @@ async def on_message(message):
         await client.add_reaction(message, ":GODSTINY:347438305601912833")
     if "hot coco" in message.content.lower():
         await client.add_reaction(message, ":pepeComfy:372014257044193302")
+
+    #comboCounter
+    #print("Check content", message.content == savedEmote)
+    #print("Check author", message.author.id == client.user.id)
+    if message.author.id == client.user.id:
+        #print("Ignore selfwritten messages")
+    elif message.content == savedEmote:
+        counter+=1
+        print(counter)
+    else:
+        if counter > 1:
+            await client.send_message(message.channel, savedEmote + " " + str(counter) + "x " + "c-c-c-combo") #print combo
+        counter = 0 #reset counter
+        savedEmote = '' #reset saved emote
+
+        for emoji in message.server.emojis:
+            if message.content == str(emoji):
+                savedEmote = str(emoji)
+                counter = 1                
+        print("savedEmote", savedEmote)
+        print("messageAuthor", message.author)
+        
     await client.process_commands(message)
         
 client.run(config["token"])
