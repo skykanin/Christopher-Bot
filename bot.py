@@ -222,7 +222,7 @@ async def on_message(message):
         None
     elif message.content == savedEmote:
         counter+=1
-        print(counter)
+        #print(counter)
     else:
         if counter > 1:
             await client.send_message(message.channel, savedEmote + " " + str(counter) + "x " + "c-c-c-combo") #print combo
@@ -234,8 +234,7 @@ async def on_message(message):
                 savedEmote = str(emoji)
                 counter = 1                
         #print("savedEmote", savedEmote)
-        #print("messageAuthor", message.author)
-        
+        #print("messageAuthor", message.author)   
     await client.process_commands(message)
         
 client.run(config["token"])
