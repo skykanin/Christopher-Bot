@@ -233,8 +233,8 @@ async def on_message(message):
             if message.content == str(emoji):
                 savedEmote = str(emoji)
                 counter = 1                
-        print("savedEmote", savedEmote)
-        print("messageAuthor", message.author)
+        #print("savedEmote", savedEmote)
+        #print("messageAuthor", message.author)
         
     await client.process_commands(message)
         
