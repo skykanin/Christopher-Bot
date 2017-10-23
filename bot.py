@@ -197,7 +197,7 @@ async def on_message(message):
     if message.content.lower() in list_of_strings:
         await client.add_reaction(message, "🐢")
         await client.add_reaction(message, "🚀")
-    if message.content.lower() == "the power of js":
+    if "the power of js" in message.content.lower():
         await client.add_reaction(message, ":GODSTINY:347438305601912833")
     if "hot coco" in message.content.lower():
         await client.add_reaction(message, ":pepeComfy:372014257044193302")
