@@ -29,8 +29,8 @@ stebenTwitterId = 4726147296
 dict_of_roles = {}
 adminRoleName = "Admin"
 #Combo counter
-# savedEmote = ""
-# counter = 0
+savedEmote = ""
+counter = 0
 
 @client.event
 async def on_ready():
@@ -175,7 +175,44 @@ async def live():
         return(await client.say("{0} is live right now <:WhoahDude:309736750689943552>".format(channelName)))
     else:
         return(await client.say("{0} is not live right now 😦".format(channelName)))
-    
+
+valueList = {}
+
+@client.command(pass_context=True)
+async def values(ctx):
+    global valueList
+    if ctx.message.content in valueList:
+        return(await client.say(valueList[ctx.message.content]))
+    elif ctx.message.author.name in valueList:
+        return(await client.say(valueList[ctx.message.author.name]))
+    else:
+        return(await client.say("Can't find data for user"))
+
+@client.command(pass_context=True)
+async def addValues(ctx):
+    global valueList
+    hasRole = False
+    imgurLink = "https://imgur.com/"
+    serverRoles = ctx.message.server.roles
+    stringList = ctx.message.content.split(" ")
+
+    for e in ctx.message.author.roles:
+        if e.name == adminRoleName:
+            hasRole = True
+
+    if hasRole:
+        if len(stringList) == 3 and imgurLink in stringList[2]:
+            valueList[stringList[1]] = stringList[2]
+            print(valueList)
+            return(await client.say("8values result added"))
+        elif len(stringList) == 2 and imgurLink in stringList[1]:
+            valueList[ctx.message.author.name] = stringList[1]
+            print(valueList)
+            return(await client.say("8values result added"))
+        else:
+            return(await client.say("Incorrect use of command (name must not contain spaces) or imgur link not supplied"))
+    else:
+        return(await client.say("You do not have permission to use this command <:OverRustle:286162736625352716>"))
 
 @client.command(pass_context=True)
 async def about(ctx):
@@ -197,10 +234,6 @@ async def about(ctx):
 async def commands():
     return(await client.say("For a full list of all my commands and how to use them, checkout my github repository (https://github.com/skykanin/Christopher-Bot) README file"))
 
-
-savedEmote = ""
-counter = 0
-
 @client.event
 async def on_message(message):
     global savedEmote
@@ -217,24 +250,25 @@ async def on_message(message):
     #comboCounter
     #print("Check content", message.content == savedEmote)
     #print("Check author", message.author.id == client.user.id)
-    if message.author.id == client.user.id:
-        #print("Ignore selfwritten messages")
-        None
-    elif message.content == savedEmote:
-        counter+=1
-        #print(counter)
-    else:
-        if counter > 1:
-            await client.send_message(message.channel, savedEmote + " " + str(counter) + "x " + "c-c-c-combo") #print combo
-        counter = 0 #reset counter
-        savedEmote = '' #reset saved emote
+    if message.channel == "general":
+        if message.author.id == client.user.id:
+            #print("Ignore selfwritten messages")
+            None
+        elif message.content == savedEmote:
+            counter+=1
+            #print(counter)
+        else:
+            if counter > 1:
+                await client.send_message(message.channel, savedEmote + " " + str(counter) + "x " + "c-c-c-combo") #print combo
+            counter = 0 #reset counter
+            savedEmote = '' #reset saved emote
 
-        for emoji in message.server.emojis:
-            if message.content == str(emoji):
-                savedEmote = str(emoji)
-                counter = 1                
-        #print("savedEmote", savedEmote)
-        #print("messageAuthor", message.author)   
+            for emoji in message.server.emojis:
+                if message.content == str(emoji):
+                    savedEmote = str(emoji)
+                    counter = 1                
+            #print("savedEmote", savedEmote)
+            #print("messageAuthor", message.author)   
     await client.process_commands(message)
         
 client.run(config["token"])
