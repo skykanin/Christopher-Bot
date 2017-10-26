@@ -217,7 +217,7 @@ async def addValues(ctx):
 @client.command(pass_context=True)
 async def roll(ctx):
     stringList = ctx.message.content.split(" ")
-    maxVal = 50
+    maxVal = 100
 
     if len(stringList) > 1:
         del stringList[0]
