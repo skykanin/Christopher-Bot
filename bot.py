@@ -222,7 +222,7 @@ async def roll(ctx):
     if len(stringList) > 1:
         del stringList[0]
     else:
-        return(await client.say("{}".format(random.randint(1,6))))
+        return(await client.say("{}".format(random.randint(1,100))))
 
     try:
         if int(stringList[0][1:]) <= maxVal and int(stringList[0][1:]) > 0:
