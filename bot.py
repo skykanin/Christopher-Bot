@@ -218,7 +218,11 @@ async def addValues(ctx):
 async def roll(ctx):
     stringList = ctx.message.content.split(" ")
     maxVal = 50
-    del stringList[0]
+
+    if len(stringList) > 1:
+        del stringList[0]
+    else:
+        return(await client.say("{}".format(random.randint(1,6))))
 
     try:
         if int(stringList[0][1:]) <= maxVal and int(stringList[0][1:]) > 0:
