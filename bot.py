@@ -225,8 +225,10 @@ async def roll(ctx):
         return(await client.say("{}".format(random.randint(1,100))))
 
     try:
-        if int(stringList[0][1:]) <= maxVal and int(stringList[0][1:]) > 0:
+        if int(stringList[0][1:]) <= maxVal and int(stringList[0][1:]) > 0 && stringList[0][0] == "d":
             return(await client.say("{}".format(random.randint(1,int(stringList[0][1:])))))
+        elif stringList[0][0] not "d":
+            return(await client.say("Missing delimiter 'd' in front of number"))
         else:
             return(await client.say("Number is over {0} or under 1".format(str(maxVal))))
     except ValueError:
