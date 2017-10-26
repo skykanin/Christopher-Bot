@@ -5,7 +5,7 @@ from twitch import TwitchClient
 import json
 import datetime
 import pytz
-
+import random
 config = json.loads(open("config.json", "r").read())
 
 bot_description = "Admin bot"
@@ -213,6 +213,20 @@ async def addValues(ctx):
             return(await client.say("Incorrect use of command (name must not contain spaces) or imgur link not supplied"))
     else:
         return(await client.say("You do not have permission to use this command <:OverRustle:286162736625352716>"))
+
+@client.command(pass_context=True)
+async def roll(ctx):
+    stringList = ctx.message.content.split(" ")
+    maxVal = 50
+    del stringList[0]
+
+    try:
+        if int(stringList[0][1:]) <= maxVal and int(stringList[0][1:]) > 0:
+            return(await client.say("{}".format(random.randint(1,int(stringList[0][1:])))))
+        else:
+            return(await client.say("Number is over {0} or under 1".format(str(maxVal))))
+    except ValueError:
+        return(await client.say("Incorrect use of command, example of correct use !roll d6"))
 
 @client.command(pass_context=True)
 async def about(ctx):
