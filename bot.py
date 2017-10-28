@@ -272,7 +272,7 @@ async def on_message(message):
     #comboCounter
     #print("Check content", message.content == savedEmote)
     #print("Check author", message.author.id == client.user.id)
-    if message.channel == "general":
+    if message.channel.name == "general":
         if message.author.id == client.user.id:
             #print("Ignore selfwritten messages")
             None
