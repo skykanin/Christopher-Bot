@@ -43,7 +43,8 @@ async def on_ready():
 async def ping(ctx):
     now = datetime.datetime.utcnow()
     delta = now - ctx.message.timestamp
-    return(await client.say('Pong! Took {}ms'.format(delta(microseconds=1))))
+    print(delta)
+    return(await client.say('Pong! Took {}ms'.format(delta.microseconds // 1000)))
 
 @client.command(pass_context=True)
 async def mute(ctx): #fuck shitters
