@@ -39,9 +39,11 @@ async def on_ready():
     print("ID: {}".format(client.user.id))
     print(discord.__version__)
 
-@client.command()
-async def ping(*args):
-    return(await client.say("Pong!"))
+@client.command(pass_context=True)
+async def ping(ctx):
+    now = datetime.datetime.utcnow()
+    delta = now - ctx.message.timestamp
+    return(await client.say('Pong! Took {}ms'.format(delta(microseconds=1))))
 
 @client.command(pass_context=True)
 async def mute(ctx): #fuck shitters
