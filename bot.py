@@ -31,6 +31,7 @@ adminRoleName = "Admin"
 #Combo counter
 savedEmote = ""
 counter = 0
+combo_users=[]
 
 @client.event
 async def on_ready():
@@ -260,6 +261,7 @@ async def commands():
 async def on_message(message):
     global savedEmote
     global counter
+    global combo_users
 
     if message.content.lower() in list_of_strings:
         await client.add_reaction(message, "🐢")
@@ -270,28 +272,32 @@ async def on_message(message):
         await client.add_reaction(message, ":pepeComfy:372014257044193302")
 
     #comboCounter
-    #print("Check content", message.content == savedEmote)
-    #print("Check author", message.author.id == client.user.id)
-    print(message.channel.name)
     if message.channel.name == "general":
         if message.author.id == client.user.id:
-            #print("Ignore selfwritten messages")
             None
-        elif message.content == savedEmote:
+        elif savedEmote == '' and counter == 0:
+            for emoji in message.server.emojis:
+                if message.content == str(emoji):
+                    savedEmote = str(emoji)
+                    counter = 1
+                    combo_users.append(message.author.id)
+            print(savedEmote)
+            print(counter)
+            print(combo_users)
+        elif message.content == savedEmote and message.author.id not in combo_users:
             counter+=1
-            #print(counter)
+            print(counter)
         else:
             if counter > 1:
                 await client.send_message(message.channel, savedEmote + " " + str(counter) + "x " + "c-c-c-combo") #print combo
             counter = 0 #reset counter
             savedEmote = '' #reset saved emote
+            combo_users = [] #reset combo users list
 
-            for emoji in message.server.emojis:
+            '''for emoji in message.server.emojis:
                 if message.content == str(emoji):
                     savedEmote = str(emoji)
-                    counter = 1                
-            #print("savedEmote", savedEmote)
-            #print("messageAuthor", message.author)   
+                    counter = 1'''              
     await client.process_commands(message)
         
 client.run(config["token"])
