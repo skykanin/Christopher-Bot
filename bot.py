@@ -32,6 +32,8 @@ adminRoleName = "Admin"
 savedEmote = ""
 counter = 0
 combo_users=[]
+#8values dict
+valueList = {}
 
 @client.event
 async def on_ready():
@@ -179,7 +181,7 @@ async def live():
     else:
         return(await client.say("{0} is not live right now 😦".format(channelName)))
 
-valueList = {}
+
 
 @client.command(pass_context=True)
 async def values(ctx):
@@ -281,23 +283,18 @@ async def on_message(message):
                     savedEmote = str(emoji)
                     counter = 1
                     combo_users.append(message.author.id)
-            print(savedEmote)
-            print(counter)
-            print(combo_users)
+            #print(savedEmote)
+            #print(counter)
+            #print(combo_users)
         elif message.content == savedEmote and message.author.id not in combo_users:
             counter+=1
-            print(counter)
+            #print(counter)
         else:
             if counter > 1:
                 await client.send_message(message.channel, savedEmote + " " + str(counter) + "x " + "c-c-c-combo") #print combo
             counter = 0 #reset counter
             savedEmote = '' #reset saved emote
-            combo_users = [] #reset combo users list
-
-            '''for emoji in message.server.emojis:
-                if message.content == str(emoji):
-                    savedEmote = str(emoji)
-                    counter = 1'''              
+            combo_users = [] #reset combo users list            
     await client.process_commands(message)
         
 client.run(config["token"])
