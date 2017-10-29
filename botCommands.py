@@ -151,9 +151,9 @@ class BotCommands:
     async def about(self, ctx):
         embed = discord.Embed(
             title = "I am Christopher Bot",
-            description = "I am an administration bot made by Skykanin, \
-            written in Python using the discord.py API. If you want to look \
-            at my code checkout my github repository.",
+            description = """I am an administration bot made by Skykanin,
+            written in Python using the discord.py API. If you want to look
+            at my code checkout my github repository.""",
             url = "https://github.com/skykanin/Christopher-Bot",
             color = 0xffffff
         )
@@ -167,5 +167,5 @@ class BotCommands:
     
     @commands.command(pass_context=False)
     async def commands(self):
-        return(await self.bot.say("For a full list of all my commands and how to use them, \
-        checkout my github repository (https://github.com/skykanin/Christopher-Bot) README file"))
+        return(await self.bot.say("""For a full list of all my commands and how to use them,
+        checkout my github repository (https://github.com/skykanin/Christopher-Bot) README file"""))
