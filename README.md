@@ -12,8 +12,6 @@ Prefix for the commands can be changed in the config file. All commands follow t
 | `unmute [userMention]`     |Unmutes a user                             |
 | `twitter`                  |Returns latest tweet from a twitter user   |
 | `live`                     |Checks if twitch user is live or not       |
-| `values [username]`        |Returns imgur url for a specific user from saved 8values list. If no argument is given, returns url for message author|
-| `addValues [username, url]`|Add a imgur url to a user in the values list |
 | `roll [dx]`                |Rolls a dice from given argument, default dice is d100|
 | `about`                    |Info about the bot and author with link to github|
 | `commands`                 |Links to this page                         |
