@@ -20,7 +20,7 @@ class BotCommands:
         self.twitchClient = twitchClient
         self.yt_api_key = yt_api_key
         self.timeFormat = '%d %b %Y' + ' at ' + '%H:%M' + ' Central European'
-        self.localTimeZone = 'Europe/Oslo'
+        self.localTimeZone = pytz.timezone('Europe/Oslo')
         self.muted_users = []
         self.month_dict = {v: k for k,v in enumerate(calendar.month_abbr)}
         self.adminRoleName = "Admin"
@@ -149,8 +149,9 @@ class BotCommands:
             url = channelLink.format(stebenChannelId),
             icon_url = self.getChannelImage()
         )
-        utcTime = datetime.datetime.strptime(yt_object["items"][0]["snippet"]["publishedAt"], '%Y-%m-%dT%H:%M:%S.000Z') #2017-10-28T01:29:51.000Z
-        localTime = utcTime.astimezone(pytz.timezone(self.localTimeZone)).strftime(self.timeFormat)
+        naiveTime = datetime.datetime.strptime(yt_object["items"][0]["snippet"]["publishedAt"], '%Y-%m-%dT%H:%M:%S.000Z') #2017-10-28T01:29:51.000Z
+        utcTime = pytz.utc.localize(naiveTime)
+        localTime = utcTime.astimezone(self.localTimeZone).strftime(self.timeFormat)
         embedVideo.set_footer(text = localTime)
         return(await self.bot.send_message(ctx.message.channel, embed=embedVideo))
 
