@@ -124,7 +124,7 @@ class BotCommands:
         http = urllib3.PoolManager()
         try:
             r = http.request('GET', requestString.format(stebenChannelId, self.yt_api_key))
-            yt_object = json.loads(r.data)
+            yt_object = json.loads(str(r.data))
         except ValueError as err:
             return(await self.bot.say("Failed to decode JSON object: {}".format(err)))
         except Exception as err:
@@ -157,7 +157,7 @@ class BotCommands:
         http = urllib3.PoolManager()
         try:
             r = http.request('GET', requestString.format(username, self.yt_api_key))
-            yt_object = json.loads(r.data)
+            yt_object = json.loads(str(r.data))
             return(yt_object["items"][0]["snippet"]["thumbnails"]["default"]["url"])
         except ValueError as err:
             return("Failed to decode JSON object: {}".format(err))
