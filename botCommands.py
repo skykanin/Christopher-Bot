@@ -110,7 +110,7 @@ class BotCommands:
             icon_url = tweetObject["user"]["profile_image_url"]
         )
         utcTime = datetime.datetime.strptime(tweetObject["created_at"][4:], '%b %d %H:%M:%S %z %Y')
-        localTime = utcTime.astimezone(pytz.timezone(self.localTimeZone)).strftime(self.timeFormat)
+        localTime = utcTime.astimezone(self.localTimeZone).strftime(self.timeFormat)
         embedTweet.set_footer(text = localTime)
         return(await self.bot.send_message(ctx.message.channel, embed=embedTweet))
     
