@@ -4,6 +4,7 @@ from twitch import TwitchClient
 import calendar
 import datetime
 import discord
+import httplib2
 import json
 import pytz
 import random
@@ -12,10 +13,13 @@ import twitter
 
 class BotCommands:
 
-    def __init__(self, discordClient, twitterApi, twitchClient):
+    def __init__(self, discordClient, twitterApi, twitchClient, yt_api_key):
         self.bot = discordClient
         self.api = twitterApi
         self.twitchClient = twitchClient
+        self.yt_api_key = yt_api_key
+        self.timeFormat = '%b %d, %Y' + ' at ' + '%H:%M' + ' Central European'
+        self.localTimeZone = 'Europe/Oslo'
         self.muted_users = []
         self.month_dict = {v: k for k,v in enumerate(calendar.month_abbr)}
         self.adminRoleName = "Admin"
@@ -89,34 +93,70 @@ class BotCommands:
         return next((x for x in server_roles if x.name == target_name), None)
 
     @commands.command(pass_context=True)
-    async def twitter(self, ctx, stebenTwitterId=4726147296, localTimeZone='Europe/Oslo'):
+    async def twitter(self, ctx, stebenTwitterId=4726147296):
         tweetJSON = self.api.GetUserTimeline(user_id=stebenTwitterId, count=1, exclude_replies=True)[0]
         tweetObject = json.loads(str(tweetJSON))
 
-        embed = discord.Embed(
+        embedTweet = discord.Embed(
             title = "Go to tweet",
             description = tweetObject["text"],
             url = "https://twitter.com/{0}/status/{1}".format(tweetObject["user"]["screen_name"], tweetObject["id_str"]),
             color = 0x00aced
         )
-        embed.set_author(
+        embedTweet.set_author(
             name = "{0} ({1})".format(tweetObject["user"]["screen_name"], tweetObject["user"]["name"]),
             url = "https://twitter.com/{}".format(tweetObject["user"]["screen_name"]),
             icon_url = tweetObject["user"]["profile_image_url"]
         )
-        utcTime = self.buildDate(tweetObject["created_at"][4:].split(' '))
-        localTime = utcTime.astimezone(pytz.timezone(localTimeZone)).strftime('%b %d, %Y' + ' at ' + '%H:%M' + ' Central European')
-        embed.set_footer(text = localTime)
-        return(await self.bot.send_message(ctx.message.channel, embed=embed))
+        utcTime = datetime.datetime.strptime(tweetObject["created_at"][4:], '%b %d %H:%M:%S %z %Y')
+        localTime = utcTime.astimezone(pytz.timezone(self.localTimeZone)).strftime(self.timeFormat)
+        embedTweet.set_footer(text = localTime)
+        return(await self.bot.send_message(ctx.message.channel, embed=embedTweet))
+    
+    @commands.command(pass_context=True)
+    async def youtube(self, ctx, stebenChannelId="UC554eY5jNUfDq3yDOJYirOQ", channelLink="https://www.youtube.com/channel/{}",videoLink="https://youtube.com/watch?v={}"):
+        requestString ="https://www.googleapis.com/youtube/v3/activities?part=snippet%2C+contentDetails&channelId={0}&maxResults=1&key={1}"
+        h = httplib2.Http()
+        try:
+            (resp_headers, content) = h.request(requestString.format(stebenChannelId, self.yt_api_key), "GET")
+            yt_object = json.loads(content)
+            print(resp_headers)
+        except ValueError as err:
+            return(await self.bot.say("Failed to decode JSON object: {}".format(err)))
+        except:
+            return(await self.bot.say("Bad https request:"))
+        
+        print(yt_object["items"][0]["contentDetails"]["upload"]["videoId"])
+        print(yt_object["items"][0]["snippet"]["publishedAt"])
+        print(yt_object["items"][0]["snippet"]["description"])
 
-    def buildDate(self, dateArray): #Example of dateArray: ["Oct", "18", "20:11:48", +0000, "2017"]
-        seconds = int(dateArray[2][6:8])
-        minutes = int(dateArray[2][3:5])
-        hours = int(dateArray[2][0:2])
-        day = int(dateArray[1])
-        month = self.month_dict[dateArray[0]]
-        year = int(dateArray[4])
-        return(datetime.datetime(year, month, day, hours, minutes, seconds, 0, tzinfo=pytz.UTC))
+        embedVideo = discord.Embed(
+            title = yt_object["items"][0]["snippet"]["title"],
+            description = yt_object["items"][0]["snippet"]["description"],
+            url = videoLink.format(yt_object["items"][0]["contentDetails"]["upload"]["videoId"]),
+            color = 0xff0000
+        )
+        embedVideo.set_author(
+            name = yt_object["items"][0]["snippet"]["channelTitle"],
+            url = channelLink.format(stebenChannelId),
+            icon_url = self.getChannelImage()
+        )
+        utcTime = datetime.datetime.strptime(yt_object["items"][0]["snippet"]["publishedAt"], '%Y-%m-%dT%H:%M:%S.000Z') #2017-10-28T01:29:51.000Z
+        localTime = utcTime.astimezone(pytz.timezone(self.localTimeZone)).strftime(self.timeFormat)
+        embedVideo.set_footer(text = localTime)
+        return(await self.bot.send_message(ctx.message.channel, embed=embedVideo))
+
+    def getChannelImage(self, username="destiny"):
+        requestString="https://www.googleapis.com/youtube/v3/channels?part=snippet%2C+contentDetails&forUsername={0}&key={1}".format(username, self.yt_api_key)
+        h = httplib2.Http()
+        try:
+            (resp_headers, content) = h.request(requestString.format(stebenChannelId, self.yt_api_key), "GET")
+            yt_object = json.loads(content)
+            return(yt_object["items"][0]["thumbnails"]["default"]["url"])
+        except ValueError as err:
+            return("Failed to decode JSON object: {}".format(err))
+        except:
+            return("Bad https request:")
 
     @commands.command(pass_context=False)
     async def live(self, stebenChannelId="18074328", url="www.destiny.gg/bigscreen"):

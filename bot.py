@@ -21,13 +21,14 @@ consumerSecret = config["consumer_secret"]
 accessTokenKey = config["access_token_key"]
 accessTokenSecret = config["access_token_secret"]
 clientId = config["twitch_client_id"]
+yt_api_key = config["yt_api_key"]
 
 client = Bot(description=bot_description, command_prefix=bot_prefix)
 api = twitter.Api(consumer_key=consumerKey, consumer_secret=consumerSecret,
     access_token_key=accessTokenKey, access_token_secret=accessTokenSecret)
 twitchClient = TwitchClient(client_id=clientId)
 
-client.add_cog(BotCommands(client, api, twitchClient))
+client.add_cog(BotCommands(client, api, twitchClient, yt_api_key))
 
 list_of_strings = ['best lang', 'what is the best programming language?', 'what language is the best?']
 currentEmote = ""
