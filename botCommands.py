@@ -89,7 +89,7 @@ class BotCommands:
         return next((x for x in server_roles if x.name == target_name), None)
 
     @commands.command(pass_context=True)
-    async def twitter(ctx, stebenTwitterId=4726147296, localTimeZone='Europe/Oslo'):
+    async def twitter(self, ctx, stebenTwitterId=4726147296, localTimeZone='Europe/Oslo'):
         tweetJSON = self.api.GetUserTimeline(user_id=stebenTwitterId, count=1, exclude_replies=True)[0]
         tweetObject = json.loads(str(tweetJSON))
 
@@ -104,17 +104,17 @@ class BotCommands:
             url = "https://twitter.com/{}".format(tweetObject["user"]["screen_name"]),
             icon_url = tweetObject["user"]["profile_image_url"]
         )
-        utcTime = buildDate(tweetObject["created_at"][4:].split(' '))
+        utcTime = self.buildDate(tweetObject["created_at"][4:].split(' '))
         localTime = utcTime.astimezone(pytz.timezone(localTimeZone)).strftime('%b %d, %Y' + ' at ' + '%H:%M' + ' Central European')
         embed.set_footer(text = localTime)
         return(await self.bot.send_message(ctx.message.channel, embed=embed))
 
-    def buildDate(dateArray): #Example of dateArray: ["Oct", "18", "20:11:48", +0000, "2017"]
+    def buildDate(self, dateArray): #Example of dateArray: ["Oct", "18", "20:11:48", +0000, "2017"]
         seconds = int(dateArray[2][6:8])
         minutes = int(dateArray[2][3:5])
         hours = int(dateArray[2][0:2])
         day = int(dateArray[1])
-        month = self.month_dict(dateArray[0])
+        month = self.month_dict[dateArray[0]]
         year = int(dateArray[4])
         return(datetime.datetime(year, month, day, hours, minutes, seconds, 0, tzinfo=pytz.UTC))
 
@@ -151,9 +151,7 @@ class BotCommands:
     async def about(self, ctx):
         embed = discord.Embed(
             title = "I am Christopher Bot",
-            description = """I am an administration bot made by Skykanin,
-            written in Python using the discord.py API. If you want to look
-            at my code checkout my github repository.""",
+            description = "I am an administration bot made by Skykanin, written in Python using the discord.py API. If you want to look at my code checkout my github repository.",
             url = "https://github.com/skykanin/Christopher-Bot",
             color = 0xffffff
         )
@@ -167,5 +165,4 @@ class BotCommands:
     
     @commands.command(pass_context=False)
     async def commands(self):
-        return(await self.bot.say("""For a full list of all my commands and how to use them,
-        checkout my github repository (https://github.com/skykanin/Christopher-Bot) README file"""))
+        return(await self.bot.say("For a full list of all my commands and how to use them, checkout my github repository (https://github.com/skykanin/Christopher-Bot) README file"))
