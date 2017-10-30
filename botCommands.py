@@ -122,12 +122,15 @@ class BotCommands:
         height = 9
 
         http = urllib3.PoolManager()
+
         try:
             r = http.request('GET', requestString.format(stebenChannelId, self.yt_api_key))
-            yt_object = json.loads(str(r.data))
+            yt_object = json.loads(r.data.decode("utf-8"))
         except ValueError as err:
+            print("youtube:",err)
             return(await self.bot.say("Failed to decode JSON object: {}".format(err)))
         except Exception as err:
+            print(err)
             return(await self.bot.say("Error {}".format(err)))
 
         embedVideo = discord.Embed(
@@ -157,11 +160,13 @@ class BotCommands:
         http = urllib3.PoolManager()
         try:
             r = http.request('GET', requestString.format(username, self.yt_api_key))
-            yt_object = json.loads(str(r.data))
+            yt_object = json.loads(r.data.decode("utf-8"))
             return(yt_object["items"][0]["snippet"]["thumbnails"]["default"]["url"])
         except ValueError as err:
+            print("Image:",err)
             return("Failed to decode JSON object: {}".format(err))
         except Exception as err:
+            print(err)
             return("Error {}".format(err))
 
     @commands.command(pass_context=False)
