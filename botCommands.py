@@ -18,7 +18,7 @@ class BotCommands:
         self.api = twitterApi
         self.twitchClient = twitchClient
         self.yt_api_key = yt_api_key
-        self.timeFormat = '%b %d, %Y' + ' at ' + '%H:%M' + ' Central European'
+        self.timeFormat = '%d %b %Y' + ' at ' + '%H:%M' + ' Central European'
         self.localTimeZone = 'Europe/Oslo'
         self.muted_users = []
         self.month_dict = {v: k for k,v in enumerate(calendar.month_abbr)}
@@ -115,27 +115,30 @@ class BotCommands:
     
     @commands.command(pass_context=True)
     async def youtube(self, ctx, stebenChannelId="UC554eY5jNUfDq3yDOJYirOQ", channelLink="https://www.youtube.com/channel/{}",videoLink="https://youtube.com/watch?v={}"):
-        requestString ="https://www.googleapis.com/youtube/v3/activities?part=snippet%2C+contentDetails&channelId={0}&maxResults=1&key={1}"
+        requestString ="https://www.googleapis.com/youtube/v3/search?part=snippet&channelId={0}&maxResults=1&type=video&order=date&key={1}"
+        imageUrl = "https://i.ytimg.com/vi/{}/maxresdefault.jpg"
+        width = 16
+        height = 9
         h = httplib2.Http()
         try:
             (resp_headers, content) = h.request(requestString.format(stebenChannelId, self.yt_api_key), "GET")
             yt_object = json.loads(content)
-            print(resp_headers)
         except ValueError as err:
             return(await self.bot.say("Failed to decode JSON object: {}".format(err)))
-        except:
-            return(await self.bot.say("Bad https request:"))
-        
-        print(yt_object["items"][0]["contentDetails"]["upload"]["videoId"])
-        print(yt_object["items"][0]["snippet"]["publishedAt"])
-        print(yt_object["items"][0]["snippet"]["description"])
+        except Exception as err:
+            return(await self.bot.say("Error {}".format(err)))
 
         embedVideo = discord.Embed(
             title = yt_object["items"][0]["snippet"]["title"],
             description = yt_object["items"][0]["snippet"]["description"],
-            url = videoLink.format(yt_object["items"][0]["contentDetails"]["upload"]["videoId"]),
+            url = videoLink.format(yt_object["items"][0]["id"]["videoId"]),
             color = 0xff0000
         )
+
+        embedVideo.set_image(url = imageUrl.format(yt_object["items"][0]["id"]["videoId"]))
+        embedVideo.image.width = width
+        embedVideo.image.height = height
+
         embedVideo.set_author(
             name = yt_object["items"][0]["snippet"]["channelTitle"],
             url = channelLink.format(stebenChannelId),
@@ -150,13 +153,13 @@ class BotCommands:
         requestString="https://www.googleapis.com/youtube/v3/channels?part=snippet%2C+contentDetails&forUsername={0}&key={1}".format(username, self.yt_api_key)
         h = httplib2.Http()
         try:
-            (resp_headers, content) = h.request(requestString.format(stebenChannelId, self.yt_api_key), "GET")
+            (resp_headers, content) = h.request(requestString.format(username, self.yt_api_key), "GET")
             yt_object = json.loads(content)
-            return(yt_object["items"][0]["thumbnails"]["default"]["url"])
+            return(yt_object["items"][0]["snippet"]["thumbnails"]["default"]["url"])
         except ValueError as err:
             return("Failed to decode JSON object: {}".format(err))
-        except:
-            return("Bad https request:")
+        except Exception as err:
+            return("Error {}".format(err))
 
     @commands.command(pass_context=False)
     async def live(self, stebenChannelId="18074328", url="www.destiny.gg/bigscreen"):
