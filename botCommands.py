@@ -4,7 +4,8 @@ from twitch import TwitchClient
 import calendar
 import datetime
 import discord
-import httplib2
+import urllib3
+urllib3.disable_warnings()
 import json
 import pytz
 import random
@@ -119,10 +120,11 @@ class BotCommands:
         imageUrl = "https://i.ytimg.com/vi/{}/maxresdefault.jpg"
         width = 16
         height = 9
-        h = httplib2.Http()
+
+        http = urllib3.PoolManager()
         try:
-            (resp_headers, content) = h.request(requestString.format(stebenChannelId, self.yt_api_key), "GET")
-            yt_object = json.loads(content)
+            r = http.request('GET', requestString.format(stebenChannelId, self.yt_api_key))
+            yt_object = json.loads(r.data)
         except ValueError as err:
             return(await self.bot.say("Failed to decode JSON object: {}".format(err)))
         except Exception as err:
@@ -151,10 +153,11 @@ class BotCommands:
 
     def getChannelImage(self, username="destiny"):
         requestString="https://www.googleapis.com/youtube/v3/channels?part=snippet%2C+contentDetails&forUsername={0}&key={1}".format(username, self.yt_api_key)
-        h = httplib2.Http()
+
+        http = urllib3.PoolManager()
         try:
-            (resp_headers, content) = h.request(requestString.format(username, self.yt_api_key), "GET")
-            yt_object = json.loads(content)
+            r = http.request('GET', requestString.format(username, self.yt_api_key))
+            yt_object = json.loads(r.data)
             return(yt_object["items"][0]["snippet"]["thumbnails"]["default"]["url"])
         except ValueError as err:
             return("Failed to decode JSON object: {}".format(err))
