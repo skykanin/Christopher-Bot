@@ -203,7 +203,7 @@ class BotCommands:
     async def about(self, ctx):
         embed = discord.Embed(
             title = "I am Christopher Bot",
-            description = "I am an administration bot made by Skykanin, written in Python using the discord.py API. If you want to look at my code checkout my github repository.",
+            description = "I am an administration bot made by Skykanin, written in Python using the discord.py API. If you want to look at my code check out my github repository.",
             url = "https://github.com/skykanin/Christopher-Bot",
             color = 0xffffff
         )
