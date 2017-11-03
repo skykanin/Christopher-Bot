@@ -171,11 +171,11 @@ class BotCommands:
             return("Error {}".format(err))
 
     @commands.command(pass_context=False)
-    async def live(self, stebenChannelId="18074328", url="www.destiny.gg/bigscreen"):
+    async def live(self, stebenChannelId="18074328", url="https://www.destiny.gg/bigscreen"):
         stream = self.twitchClient.streams.get_live_streams(channel=stebenChannelId, stream_type="live")
         channelName = self.twitchClient.channels.get_by_id(int(stebenChannelId)).name.capitalize()
         if stream:
-            return(await self.bot.say("{0} {1} is live right now <:WhoahDude:309736750689943552>".format(url, channelName)))
+            return(await self.bot.say("{0} is live right now <:WhoahDude:309736750689943552> \n{1}".format(channelName, url)))
         else:
             return(await self.bot.say("{0} is not live right now 😦".format(channelName)))
 
@@ -213,7 +213,6 @@ class BotCommands:
             icon_url = "https://i.imgur.com/vpCyIaM.png"
         )
         return(await self.bot.send_message(ctx.message.channel, embed=embed))
-    
     
     @commands.command(pass_context=False)
     async def commands(self):
