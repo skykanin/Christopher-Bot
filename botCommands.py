@@ -1,6 +1,7 @@
 #!/usr/bin/python3
 from discord.ext import commands
 from twitch import TwitchClient
+import asyncio
 import calendar
 import datetime
 import discord
@@ -21,7 +22,6 @@ class BotCommands:
         self.yt_api_key = yt_api_key
         self.timeFormat = '%d %b %Y' + ' at ' + '%H:%M' + ' Central European'
         self.localTimeZone = pytz.timezone('Europe/Oslo')
-        self.muted_users = []
         self.month_dict = {v: k for k,v in enumerate(calendar.month_abbr)}
         self.adminRoleName = "Admin"
 
@@ -31,8 +31,7 @@ class BotCommands:
         delta = now - ctx.message.timestamp
         return(await self.bot.say('Pong! Took {}ms'.format(delta.microseconds // 1000)))
 
-    @commands.command(pass_context=True)
-    async def mute(self, ctx): #fuck shitters
+    async def mute_function(self, ctx):
         toMute = ctx.message.content.split(' ')[0] == "!mute"
 
         hasAdminRole = False
@@ -65,7 +64,6 @@ class BotCommands:
                 try:
                     print("Roles to add", mutedRole)
                     await self.bot.add_roles(memberToToggleMute, mutedRole)
-                    self.muted_users.append(memberToToggleMute.id)
                     print("Roles after addition", memberToToggleMute.roles)
                 except discord.Forbidden:
                     return(await self.bot.say(forbiddenMessage))
@@ -73,10 +71,10 @@ class BotCommands:
                     return(await self.bot.say(failedMessage.format("add")))
                 return(await self.bot.say(returnMessage.format(mentionedMember, "muted")))
             else:
-                if memberToToggleMute not in self.muted_users:
+                if mutedRole not in memberToToggleMute.roles:
                     return(await self.bot.say("{} does not have the Muted role".format(mentionedMember)))
                 try:
-                    print("Roles to remove", mutedRole)
+                    print("Roles to remove:", mutedRole)
                     await self.bot.remove_roles(memberToToggleMute, mutedRole)
                     print("Roles after removal", memberToToggleMute.roles)
                 except discord.Forbidden:
@@ -84,11 +82,14 @@ class BotCommands:
                 except discord.HTTPException:
                     return(await self.bot.say(failedMessage.format("remove")))
                 return(await self.bot.say(returnMessage.format(mentionedMember, "unmuted")))
-            
+    
+    @commands.command(pass_context=True)
+    async def mute(self, ctx): #cuck shitters
+        await self.mute_function(ctx) 
 
     @commands.command(pass_context=True)
     async def unmute(self, ctx): #uncuck shitters
-        self.mute(ctx)
+        await self.mute_function(ctx)
 
     def get_role(self, server_roles, target_name):
         return next((x for x in server_roles if x.name == target_name), None)

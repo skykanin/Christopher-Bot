@@ -1,5 +1,8 @@
 #Removes .vscode settings
 .vscode
 
+#Removes python cache
+.cache
+
 #Remove config files with sensitive data
 config.json
