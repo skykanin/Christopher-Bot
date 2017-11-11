@@ -59,7 +59,7 @@ class BotCommands:
             returnMessage = "User {0} is now {1}"
 
             if toMute:
-                if memberToToggleMute in self.muted_users:
+                if mutedRole in memberToToggleMute.roles:
                     return(await self.bot.say("{} already has the Muted role".format(mentionedMember)))
                 try:
                     print("Roles to add", mutedRole)
