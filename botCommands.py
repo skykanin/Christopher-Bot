@@ -188,8 +188,9 @@ class BotCommands:
         if string == '!roll':
             return(await self.bot.say("{}".format(random.randint(1,maxVal))))
         
-        diceFaces = re.search('^[dD]{1}\d+', string)
-
+        diceFaces = re.search('[dD]{1}\d+', string)
+        print(string)
+        print(diceFaces)
         if diceFaces == None:
             return(await self.bot.say("Incorrect use of command"))
 
