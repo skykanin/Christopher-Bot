@@ -188,15 +188,15 @@ class BotCommands:
         if string == '!roll':
             return(await self.bot.say("{}".format(random.randint(1,maxVal))))
         
-        diceFaces = re.search('[dD]{1}\d{1,3}', string)
+        diceFaces = re.search('^[dD]{1}\d+', string)
 
         if diceFaces == None:
-            return(await self.bot.say("Incorrect use of command, dice faces not given"))
+            return(await self.bot.say("Incorrect use of command"))
 
-        diceFacesValue = int(diceFaces[1:]) #removes the d
-
-        if diceFacesValue > 0 and diceFacesValue <= 100:
-            return(await client.say("{}".format(random.randint(1,diceFacesValue))))
+        diceFacesValue = int(diceFaces.group(0)[1:]) #removes the d
+        print(diceFacesValue)
+        if diceFacesValue > 0 and diceFacesValue <= maxVal:
+            return(await self.bot.say("{}".format(random.randint(1,diceFacesValue))))
 
         return(await self.bot.say("Could not parse argument, number must be between 1 and 100. Example of correct use !roll d6"))
 
