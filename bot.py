@@ -85,5 +85,9 @@ async def on_message(message):
             combo_users = [] #reset combo users list            
     await client.process_commands(message)
 
+@client.event
+async def on_error(event):
+    client.connect(reconnect=True)
+
 if __name__ == "__main__":
     client.run(config["token"])
