@@ -7,6 +7,7 @@ import calendar
 import datetime
 import discord
 import json
+import pymysql.cursors
 import pytz
 import random
 import twitter
@@ -27,8 +28,9 @@ client = Bot(description=bot_description, command_prefix=bot_prefix)
 api = twitter.Api(consumer_key=consumerKey, consumer_secret=consumerSecret,
     access_token_key=accessTokenKey, access_token_secret=accessTokenSecret)
 twitchClient = TwitchClient(client_id=clientId)
-
 client.add_cog(BotCommands(client, api, twitchClient, yt_api_key))
+
+sqlConnection = pymysql.connect(host=config["sql_host"], user=config["sql_user"], password=config["sql_password"], db=config["sql_db"])
 
 list_of_strings = ['best lang', 'what is the best programming language?', 'what language is the best?']
 currentEmote = ""
@@ -71,12 +73,8 @@ async def on_message(message):
                     currentEmote = str(emoji)
                     counter = 1
                     combo_users.append(message.author.id)
-            #print(self.currentEmote)
-            #print(self.counter)
-            #print(self.combo_users)
         elif message.content == currentEmote and message.author.id not in combo_users:
             counter+=1
-            #print(self.counter)
         else:
             if counter > 1:
                 await client.send_message(message.channel, currentEmote + " " + str(counter) + "x " + "c-c-c-combo") #print combo
@@ -84,6 +82,10 @@ async def on_message(message):
             currentEmote = '' #reset saved emote
             combo_users = [] #reset combo users list            
     await client.process_commands(message)
+
+@client.event
+async def on_server_join(server):
+
 
 @client.event
 async def on_error(event):
