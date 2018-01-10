@@ -30,7 +30,7 @@ api = twitter.Api(consumer_key=consumerKey, consumer_secret=consumerSecret,
 twitchClient = TwitchClient(client_id=clientId)
 client.add_cog(BotCommands(client, api, twitchClient, yt_api_key))
 
-sqlConnection = pymysql.connect(host=config["sql_host"], user=config["sql_user"], password=config["sql_password"], db=config["sql_db"])
+sqlConnection = pymysql.connect(host=config["sql_host"], user=config["sql_user"], password=config["sql_password"], db=config["sql_db"], port=config["sql_port"], charset='utf8mb4', cursorclass=pymysql.cursors.DictCursor)
 
 list_of_strings = ['best lang', 'what is the best programming language?', 'what language is the best?']
 currentEmote = ""
@@ -85,7 +85,14 @@ async def on_message(message):
 
 @client.event
 async def on_server_join(server):
-
+    try:
+        with connection.cursor() as cursor:
+            sql = "CREATE TABLE `{0}` (`userID` INT NOT NULL, `message` varchar(2000) NOT NULL, \
+            `dateTime` DATETIME(6) NOT NULL) ENGINE=InnoDB DEFAULT CHARSET=utf8;".format(server.id)
+            cursor.execute(sql)
+        connection.commit()
+    except:
+        print("There is an error")
 
 @client.event
 async def on_error(event):
