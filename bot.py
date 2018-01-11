@@ -1,6 +1,8 @@
 #!/usr/bin/python3
+from datetime import datetime
 from discord.ext import commands
 from discord.ext.commands import Bot
+from pymysql import IntegrityError
 from twitch import TwitchClient
 from botCommands import BotCommands
 import calendar
@@ -86,13 +88,41 @@ async def on_message(message):
 @client.event
 async def on_server_join(server):
     try:
-        with connection.cursor() as cursor:
-            sql = "CREATE TABLE `{0}` (`userID` INT NOT NULL, `message` varchar(2000) NOT NULL, \
-            `dateTime` DATETIME(6) NOT NULL) ENGINE=InnoDB DEFAULT CHARSET=utf8;".format(server.id)
+        with sqlConnection.cursor() as cursor:
+            sql = "CREATE TABLE `{0}` (`userID` BIGINT NOT NULL,`messageID` BIGINT NOT NULL, `message` varchar(2000) NOT NULL, \
+            `dateTime` DATETIME(6) NOT NULL, `edited` BOOLEAN NULL,UNIQUE (messageID)) ENGINE=InnoDB DEFAULT CHARSET=utf8;".format(server.id)
             cursor.execute(sql)
-        connection.commit()
-    except:
-        print("There is an error")
+        sqlConnection.commit()
+    except Exception as e:
+        print(e)
+
+@client.event
+async def on_message_delete(message):
+    try:
+        with sqlConnection.cursor() as cursor:
+            sql = "INSERT INTO `{0}`(`userID`,`messageID`,`message`,`dateTime`,`edited`) VALUES ({1},{2},"'"{3}"'","'"{4}"'",'0');".format(message.server.id, message.author.id, message.id, message.content, message.timestamp.__str__())
+            cursor.execute(sql)
+        sqlConnection.commit()
+    except Exception as e:
+        print(e)
+
+@client.event
+async def on_message_edit(before,after):
+    try:
+        with sqlConnection.cursor() as cursor:
+            sql = "INSERT INTO `{0}`(`userID`,`messageID`,`message`,`dateTime`,`edited`) VALUES ({1},{2},"'"{3}"'","'"{4}"'",'1');".format(before.server.id, before.author.id, before.id, before.content, before.timestamp.__str__())
+            cursor.execute(sql)
+        sqlConnection.commit()
+    except IntegrityError:
+        try:
+            with sqlConnection.cursor() as cursor:
+               sql = "UPDATE `{0}` SET `message`="'"{1}"'",`dateTime`="'"{2}"'" WHERE `messageID`={3}".format(before.server.id, before.content, before.timestamp.__str__(), before.id)
+               cursor.execute(sql)
+            sqlConnection.commit()
+        except Exception as e:
+            print(e)
+    except Exception as e:
+        print(e)
 
 @client.event
 async def on_error(event):
