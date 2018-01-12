@@ -11,6 +11,7 @@ Prefix for the commands can be changed in the config file. All commands follow t
 | `mute [userMention]`       |Mutes a user in all channels               |
 | `unmute [userMention]`     |Unmutes a user                             |
 | `twitter`                  |Returns latest tweet from a twitter user   |
+| `youtube`                  |Returns latest youtube video from user     |
 | `live`                     |Checks if twitch user is live or not       |
 | `roll [dx]`                |Rolls a dice from given argument, default dice is d100|
 | `about`                    |Info about the bot and author with link to github|
@@ -20,10 +21,7 @@ Prefix for the commands can be changed in the config file. All commands follow t
 This bot is able to add reactions to certain messages. You can edit the list `list_of_strings` to change what strings are reacted to
 by the bot.
 
-## Combo counter
-This bot is able to count emote combos. The combo has to be made by unique users (you cannot combo with yourself).
-When someone breaks the combo the bot responds with a message detailing the combo cunt and what emote was comboed.
-
-Here in an example of how the combo counter works:
-
-![alt text](https://image.prntscr.com/image/fLjqNh-wQzu5MJFBOkcsAA.png)
+## Logs
+This bot also logs deleted and edited messages. When this bot is added to a guild it will make a #logs channel and post all deleted and
+edited messages there. On top of that it will also save all of these messages in a database which is used to query spesific messages via
+bot commands.
