@@ -205,14 +205,14 @@ class BotCommands:
     async def about(self, ctx):
         embed = discord.Embed(
             title = "I am Christopher Bot",
-            description = "I am an administration bot made by Skykanin, written in Python using the discord.py API. If you want to look at my code check out my github repository.",
+            description = "I am an administration bot made by Skykanin, written in Python using the discord.py API. If you want to look at my code check out my github repository and if you find any bugs bother Skykanin about it.",
             url = "https://github.com/skykanin/Christopher-Bot",
             color = 0xffffff
         )
         embed.set_author(
             name = "skykanin",
             url = "https://github.com/skykanin",
-            icon_url = "https://i.imgur.com/vpCyIaM.png"
+            icon_url = "https://avatars0.githubusercontent.com/u/3789764?s=460&v=4"
         )
         return(await self.bot.send_message(ctx.message.channel, embed=embed))
     

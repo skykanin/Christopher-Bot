@@ -45,13 +45,11 @@ async def on_ready():
     print("Name: {}".format(client.user.name))
     print("ID: {}".format(client.user.id))
     print(discord.__version__)
+    await client.change_presence(game=discord.Game(name="with Alan"))
 
 @client.event
 async def on_message(message):
     global list_of_strings
-    global currentEmote
-    global counter
-    global combo_users
 
     content = message.content.lower()
     godstiny = ":GODSTINY:347438305601912833"
@@ -63,26 +61,7 @@ async def on_message(message):
     if "the power of js" in content:
         await client.add_reaction(message, godstiny)
     if "hot coco" in content:
-        await client.add_reaction(message, pepeComfy)
-
-    #combo counter
-    if message.channel.name == "general":
-        if message.author.id == client.user.id:
-            None
-        elif currentEmote == '' and counter == 0:
-            for emoji in message.server.emojis:
-                if message.content == str(emoji):
-                    currentEmote = str(emoji)
-                    counter = 1
-                    combo_users.append(message.author.id)
-        elif message.content == currentEmote and message.author.id not in combo_users:
-            counter+=1
-        else:
-            if counter > 1:
-                await client.send_message(message.channel, currentEmote + " " + str(counter) + "x " + "c-c-c-combo") #print combo
-            counter = 0 #reset self.counter
-            currentEmote = '' #reset saved emote
-            combo_users = [] #reset combo users list            
+        await client.add_reaction(message, pepeComfy)       
     await client.process_commands(message)
 
 @client.event
@@ -95,6 +74,16 @@ async def on_server_join(server):
         sqlConnection.commit()
     except Exception as e:
         print(e)
+    
+    logs = next((channel for channel in server.channels if channel.name == "logs"), None)
+    if not logs:
+        try:
+            everyone_perms = discord.PermissionOverwrite(write_messages=False)
+            everyone = discord.ChannelPermissions(target=server.default_role, overwrite=everyone_perms)
+
+            await client.create_channel(server, 'logs', everyone, type=discord.ChannelType.text)
+        except Exception as e:
+            print("create_channel:",e)
 
 @client.event
 async def on_message_delete(message):
@@ -103,6 +92,25 @@ async def on_message_delete(message):
             sql = "INSERT INTO `{0}`(`userID`,`messageID`,`message`,`dateTime`,`edited`) VALUES ({1},{2},"'"{3}"'","'"{4}"'",'0');".format(message.server.id, message.author.id, message.id, message.content, message.timestamp.__str__())
             cursor.execute(sql)
         sqlConnection.commit()
+    except Exception as e:
+        print(e)
+    
+    embedDeletedMessage = discord.Embed(
+        title="Deleted from #{}:".format(message.channel.name),
+        description=message.content,
+        timestamp=message.timestamp,
+        colour=0xff0000
+    )
+    embedDeletedMessage.set_author(
+        name=message.author.name,
+        icon_url=message.author.avatar_url
+    )
+    embedDeletedMessage.set_footer(
+        text="Deleted message"
+    )
+    logsChannel = next((channel for channel in message.server.channels if channel.name == "logs"), None)
+    try:
+        await client.send_message(logsChannel, embed=embedDeletedMessage)
     except Exception as e:
         print(e)
 
@@ -121,6 +129,30 @@ async def on_message_edit(before,after):
             sqlConnection.commit()
         except Exception as e:
             print(e)
+    except Exception as e:
+        print(e)
+
+    embedEditedMessage = discord.Embed(
+        title="Before:",
+        description=before.content,
+        timestamp=after.timestamp,
+        colour=0x0000ff
+    )
+    embedEditedMessage.add_field(
+        name="After:",
+        value=after.content,
+        inline=True
+    )
+    embedEditedMessage.set_author(
+        name=after.author.name,
+        icon_url=after.author.avatar_url
+    )
+    embedEditedMessage.set_footer(
+        text="Edited message"
+    )
+    logsChannel = next((channel for channel in after.server.channels if channel.name == "logs"), None)
+    try:
+        await client.send_message(logsChannel, embed=embedEditedMessage)
     except Exception as e:
         print(e)
 
