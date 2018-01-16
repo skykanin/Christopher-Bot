@@ -24,6 +24,7 @@ class BotCommands:
         self.localTimeZone = pytz.timezone('Europe/Oslo')
         self.month_dict = {v: k for k,v in enumerate(calendar.month_abbr)}
         self.adminRoleName = "Admin"
+        self.disableCommands = False
 
     @commands.command(pass_context=True)
     async def ping(self, ctx):
@@ -32,6 +33,9 @@ class BotCommands:
         return(await self.bot.say('Pong! Took {}ms'.format(delta.microseconds // 1000)))
 
     async def mute_function(self, ctx):
+        if self.disableCommands:
+            return(await self.bot.say("This command is disabled"))
+        
         toMute = ctx.message.content.split(' ')[0] == "!mute"
 
         hasAdminRole = False
@@ -96,6 +100,9 @@ class BotCommands:
 
     @commands.command(pass_context=True)
     async def twitter(self, ctx, stebenTwitterId=4726147296):
+        if self.disableCommands:
+            return(await self.bot.say("This command is disabled"))
+
         tweetJSON = self.api.GetUserTimeline(user_id=stebenTwitterId, count=1, exclude_replies=True)[0]
         tweetObject = json.loads(str(tweetJSON))
 
@@ -117,6 +124,9 @@ class BotCommands:
     
     @commands.command(pass_context=True)
     async def youtube(self, ctx, stebenChannelId="UC554eY5jNUfDq3yDOJYirOQ", channelLink="https://www.youtube.com/channel/{}",videoLink="https://youtube.com/watch?v={}"):
+        if self.disableCommands:
+            return(await self.bot.say("This command is disabled"))
+
         requestString ="https://www.googleapis.com/youtube/v3/search?part=snippet&channelId={0}&maxResults=1&type=video&order=date&key={1}"
         imageUrl = "https://i.ytimg.com/vi/{}/maxresdefault.jpg"
         width = 16
@@ -173,12 +183,33 @@ class BotCommands:
 
     @commands.command(pass_context=False)
     async def live(self, stebenChannelId="18074328", url="https://www.destiny.gg/bigscreen"):
+        if self.disableCommands:
+            return(await self.bot.say("This command is disabled"))
         stream = self.twitchClient.streams.get_live_streams(channel=stebenChannelId, stream_type="live")
         channelName = self.twitchClient.channels.get_by_id(int(stebenChannelId)).name.capitalize()
         if stream:
             return(await self.bot.say("{0} is live right now <:WhoahDude:309736750689943552> \n{1}".format(channelName, url)))
         else:
             return(await self.bot.say("{0} is not live right now 😦".format(channelName)))
+
+    @commands.command(pass_context=True)
+    async def disableToggle(self, ctx):
+        hasAdminRole = False
+
+        for e in ctx.message.author.roles:
+            if e.name == self.adminRoleName:
+                hasAdminRole = True
+                break
+
+        if not hasAdminRole:
+            return(await self.bot.say("You don't have permission to use this command <:OverRustle:286162736625352716>"))
+        
+        if self.disableCommands:
+            self.disableCommands = False
+            return(await self.bot.say("Info commands are now enabled"))
+        else:
+            self.disableCommands = True
+            return(await self.bot.say("Info commands are now disabled"))
 
     @commands.command(pass_context=True)
     async def roll(self, ctx):
