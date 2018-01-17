@@ -263,7 +263,6 @@ class BotCommands:
             return(await self.bot.say("{}".format(random.randint(1,maxVal))))
         
         diceFaces = string.split(" ",1)[1]
-        print(diceFaces)
         
         try:
             diceFacesValue = int(diceFaces)
