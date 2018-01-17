@@ -263,14 +263,12 @@ class BotCommands:
             return(await self.bot.say("{}".format(random.randint(1,maxVal))))
         
         diceFaces = re.search('[dD]{1}\d+', string)
-        print(string)
-        print(diceFaces)
         if diceFaces == None:
             return(await self.bot.say("Incorrect use of command"))
 
         diceFacesValue = int(diceFaces.group(0)[1:]) #removes the d
-        print(diceFacesValue)
-        if diceFacesValue > 0 and diceFacesValue <= maxVal:
+
+        if diceFacesValue > 0 and diceFacesValue <= maxVal and diceFacesValue%1 == 0:
             return(await self.bot.say("{}".format(random.randint(1,diceFacesValue))))
 
         return(await self.bot.say("Could not parse argument, number must be between 1 and 100. Example of correct use !roll d6"))
