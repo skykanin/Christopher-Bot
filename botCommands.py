@@ -1,10 +1,13 @@
 #!/usr/bin/python3
+from datetime import datetime
 from discord.ext import commands
+from time import mktime
 from twitch import TwitchClient
 import asyncio
 import calendar
 import datetime
 import discord
+import feedparser
 import urllib3
 urllib3.disable_warnings()
 import json
@@ -182,11 +185,13 @@ class BotCommands:
             return("Error {}".format(err))
 
     @commands.command(pass_context=False)
-    async def live(self, stebenChannelId="18074328", url="https://www.destiny.gg/bigscreen"):
+    async def live(self, stebenChannelId=18074328, url="https://www.destiny.gg/bigscreen"):
         if self.disableCommands:
             return(await self.bot.say("This command is disabled"))
         stream = self.twitchClient.streams.get_live_streams(channel=stebenChannelId, stream_type="live")
-        channelName = self.twitchClient.channels.get_by_id(int(stebenChannelId)).name.capitalize()
+        #channelName = self.twitchClient.channels.get_by_id(int(stebenChannelId)).name.capitalize()
+        channelName = self.twitchClient.channels.get_by_id(stebenChannelId)
+        print(channelName)
         if stream:
             return(await self.bot.say("{0} is live right now <:WhoahDude:309736750689943552> \n{1}".format(channelName, url)))
         else:
@@ -211,6 +216,44 @@ class BotCommands:
             self.disableCommands = True
             return(await self.bot.say("Info commands are now disabled"))
 
+    @commands.command(pass_context=True)
+    async def nc(self, ctx, url='http://feeds.feedburner.com/NakedCapitalism'):
+        ncFeed = feedparser.parse(url)
+        todaysEntries = []
+        for entry in ncFeed.entries:
+            if datetime.datetime.utcnow().timetuple().tm_yday == entry.published_parsed.tm_yday:
+                todaysEntries.append(entry)
+
+        if(len(todaysEntries) == 0):
+            return(await self.bot.say("No new posts today 😢"))
+
+        ncEmbed = discord.Embed(
+            title="Todays posts",
+            colour=0xE86530
+        )
+        
+        ncEmbed.set_author(
+            name="Naked Capitalism",
+            url="https://www.nakedcapitalism.com",
+            icon_url="https://i.imgur.com/Ozeqkol.png"
+        )
+
+        ncEmbed.set_footer(
+            text="Published on {}".format(datetime.datetime.utcnow().strftime('%A UTC time'))
+        )
+
+        for entry in todaysEntries:
+            ncEmbed.add_field(
+                name=entry.title,
+                value=entry.feedburner_origlink,
+                inline=False
+            )
+
+        try:
+            return(await self.bot.send_message(ctx.message.channel, embed=ncEmbed))
+        except Exception as e:
+            print(e)
+                
     @commands.command(pass_context=True)
     async def roll(self, ctx):
         string = ctx.message.content

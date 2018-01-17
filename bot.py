@@ -2,14 +2,12 @@
 from datetime import datetime
 from discord.ext import commands
 from discord.ext.commands import Bot
-from pymysql import IntegrityError
 from twitch import TwitchClient
 from botCommands import BotCommands
 import calendar
 import datetime
 import discord
 import json
-import pymysql.cursors
 import pytz
 import random
 import twitter
@@ -32,13 +30,6 @@ api = twitter.Api(consumer_key=consumerKey, consumer_secret=consumerSecret,
 twitchClient = TwitchClient(client_id=clientId)
 client.add_cog(BotCommands(client, api, twitchClient, yt_api_key))
 
-sqlConnection = pymysql.connect(host=config["sql_host"], user=config["sql_user"], password=config["sql_password"], db=config["sql_db"], port=config["sql_port"], charset='utf8mb4', cursorclass=pymysql.cursors.DictCursor)
-
-list_of_strings = ['best lang', 'what is the best programming language?', 'what language is the best?']
-currentEmote = ""
-counter = 0
-combo_users=[]
-
 @client.event
 async def on_ready():
     print("Logged in")
@@ -48,8 +39,7 @@ async def on_ready():
     await client.change_presence(game=discord.Game(name="with Alan"))
 
 @client.event
-async def on_message(message):
-    global list_of_strings
+async def on_message(message, list_of_strings=['best lang', 'what is the best programming language?', 'what language is the best?']):
 
     content = message.content.lower()
     godstiny = ":GODSTINY:347438305601912833"
@@ -66,15 +56,6 @@ async def on_message(message):
 
 @client.event
 async def on_server_join(server):
-    try:
-        with sqlConnection.cursor() as cursor:
-            sql = "CREATE TABLE `{0}` (`userID` BIGINT NOT NULL,`messageID` BIGINT NOT NULL, `message` varchar(2000) NOT NULL, \
-            `dateTime` DATETIME(6) NOT NULL, `edited` BOOLEAN NULL,UNIQUE (messageID)) ENGINE=InnoDB DEFAULT CHARSET=utf8;".format(server.id)
-            cursor.execute(sql)
-        sqlConnection.commit()
-    except Exception as e:
-        print(e)
-    
     logs = next((channel for channel in server.channels if channel.name == "logs"), None)
     if not logs:
         try:
@@ -87,14 +68,6 @@ async def on_server_join(server):
 
 @client.event
 async def on_message_delete(message):
-    try:
-        with sqlConnection.cursor() as cursor:
-            sql = "INSERT INTO `{0}`(`userID`,`messageID`,`message`,`dateTime`,`edited`) VALUES ({1},{2},"'"{3}"'","'"{4}"'",'0');".format(message.server.id, message.author.id, message.id, message.content, message.timestamp.__str__())
-            cursor.execute(sql)
-        sqlConnection.commit()
-    except Exception as e:
-        print(e)
-    
     embedDeletedMessage = discord.Embed(
         title="Deleted from #{}:".format(message.channel.name),
         description=message.content,
@@ -116,21 +89,8 @@ async def on_message_delete(message):
 
 @client.event
 async def on_message_edit(before,after):
-    try:
-        with sqlConnection.cursor() as cursor:
-            sql = "INSERT INTO `{0}`(`userID`,`messageID`,`message`,`dateTime`,`edited`) VALUES ({1},{2},"'"{3}"'","'"{4}"'",'1');".format(before.server.id, before.author.id, before.id, before.content, before.timestamp.__str__())
-            cursor.execute(sql)
-        sqlConnection.commit()
-    except IntegrityError:
-        try:
-            with sqlConnection.cursor() as cursor:
-               sql = "UPDATE `{0}` SET `message`="'"{1}"'",`dateTime`="'"{2}"'" WHERE `messageID`={3}".format(before.server.id, before.content, before.timestamp.__str__(), before.id)
-               cursor.execute(sql)
-            sqlConnection.commit()
-        except Exception as e:
-            print(e)
-    except Exception as e:
-        print(e)
+    if before.content == after.content:
+        return
 
     embedEditedMessage = discord.Embed(
         title="Before:",

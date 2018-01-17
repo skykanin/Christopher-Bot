@@ -6,3 +6,6 @@
 
 #Remove config files with sensitive data
 config.json
+
+#Removes folder with bytecode for python
+__pycache__/
