@@ -14,6 +14,8 @@ Prefix for the commands can be changed in the config file. All commands follow t
 | `youtube`                  |Returns latest youtube video from user     |
 | `live`                     |Checks if twitch user is live or not       |
 | `roll [dx]`                |Rolls a dice from given argument, default dice is d100|
+| `disableToggle`            |Disables twitter, youtube and live commands|
+| `nc`                       |Returns todays nc posts                    |
 | `about`                    |Info about the bot and author with link to github|
 | `commands`                 |Links to this page                         |
 
