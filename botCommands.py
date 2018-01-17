@@ -262,18 +262,19 @@ class BotCommands:
         if string == '!roll':
             return(await self.bot.say("{}".format(random.randint(1,maxVal))))
         
-        diceFaces = re.search('[dD]{1}.+', string)
-        if diceFaces == None:
-            return(await self.bot.say("Incorrect use of command"))
-        elif not isinstance(diceFaces.group(0), int):
-            return(await self.bot.say("Error, bad input"))
+        diceFaces = string.split(" ",1)[1]
+        print(diceFaces)
         
-        diceFacesValue = int(diceFaces.group(0)[1:]) #removes the d
+        try:
+            diceFacesValue = int(diceFaces)
+        except Exception:
+            return(await self.bot.say("Bad input, argument must be an integer"))
+
         print(diceFacesValue)
-        if diceFacesValue > 0 and diceFacesValue <= maxVal and diceFacesValue%1 == 0:
+        if diceFacesValue > 0 and diceFacesValue <= maxVal:
             return(await self.bot.say("{}".format(random.randint(1,diceFacesValue))))
 
-        return(await self.bot.say("Could not parse argument, number must be between 1 and 100. Example of correct use !roll d6"))
+        return(await self.bot.say("Number must be between 1 and 100. Example of correct use !roll 6"))
 
     @commands.command(pass_context=True)
     async def about(self, ctx):
