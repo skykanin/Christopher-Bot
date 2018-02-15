@@ -102,7 +102,7 @@ class BotCommands:
         return next((x for x in server_roles if x.name == target_name), None)
 
     @commands.command(pass_context=True)
-    async def twitter(self, ctx, stebenTwitterId=4726147296):
+    async def twitter(self, ctx, stebenTwitterId=962385627663695872):
         if self.disableCommands:
             return(await self.bot.say("This command is disabled"))
 
