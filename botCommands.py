@@ -1,4 +1,4 @@
-#!/usr/bin/python3
+#!/usr/bin/python3.6
 from datetime import datetime
 from discord.ext import commands
 from time import mktime
