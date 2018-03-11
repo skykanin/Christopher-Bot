@@ -1,40 +1,32 @@
-#!/usr/bin/python3.6
+#!/usr/bin/python3
+import aiohttp
 import discord
 from discord.ext import commands
-
-from datetime import datetime
-from twitch import TwitchClient
-
-from botCommands import BotCommands
-from log import Logger
-
-import calendar
-import datetime
 import json
-import pytz
-import random
-import twitter
+from os import listdir
+from os.path import isfile, join
+import sys
+import traceback
 
 with open("config.json") as f:
     config = json.loads(f.read())
 
 bot_description = "General purpose bot made with sweat and tears by skykanin"
 bot_prefix = config["prefix"]
-consumerKey = config["consumer_key"]
-consumerSecret = config["consumer_secret"]
-accessTokenKey = config["access_token_key"]
-accessTokenSecret = config["access_token_secret"]
-clientId = config["twitch_client_id"]
-yt_api_key = config["yt_api_key"]
 
-bot = commands.Bot(description=bot_description, command_prefix=bot_prefix)
+bot = commands.Bot(description=bot_description, command_prefix=bot_prefix, pm_help=None, help_attrs=dict(hidden=True))
 
-api = twitter.Api(consumer_key=consumerKey, consumer_secret=consumerSecret,
-    access_token_key=accessTokenKey, access_token_secret=accessTokenSecret)
-twitchClient = TwitchClient(client_id=clientId)
+# this specifies what extensions to load when the bot starts up (from this directory)
+cogs_dir = "cogs"
 
-bot.add_cog(BotCommands(bot, api, twitchClient, yt_api_key))
-bot.add_cog(Logger(bot))
+extensions = (
+    'cogs.admin',
+    'cogs.osu',
+    'cogs.twitch',
+    'cogs.twitter',
+    'cogs.util',
+    'cogs.youtube',
+)
 
 @bot.event
 async def on_ready():
@@ -65,4 +57,10 @@ async def on_error(event):
     bot.connect(reconnect=True)
 
 if __name__ == "__main__":
+    for extension in [f.replace('.py', '') for f in listdir(cogs_dir) if isfile(join(cogs_dir, f))]:
+        try:
+            bot.load_extension(cogs_dir + "." + extension)
+        except Exception as e:
+            print('Failed to load extension {extension}.')
+            traceback.print_exc()
     bot.run(config["token"])

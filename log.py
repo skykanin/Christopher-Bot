@@ -1,4 +1,4 @@
-#!/usr/bin/python3.6
+#!/usr/bin/python3
 import discord
 from discord.ext import commands
 from discord.ext.commands import Bot
@@ -9,7 +9,6 @@ class Logger:
     def __init__(self, bot):
         self.bot = bot
 
-    #@Bot.event
     async def on_server_join(self, server):
         logs = next((channel for channel in server.channels if channel.name == "logs"), None)
         if not logs:
@@ -21,7 +20,6 @@ class Logger:
             except Exception as e:
                 print("create_channel:",e)
 
-    #@Bot.event
     async def on_message_delete(self, message):
         embedDeletedMessage = discord.Embed(
             title="Deleted from #{}:".format(message.channel.name),
@@ -42,7 +40,6 @@ class Logger:
         except Exception as e:
             print(e)
 
-    #@Bot.event
     async def on_message_edit(self, before,after):
         if before.content == after.content:
             return
