@@ -1,7 +1,9 @@
 import datetime
-from datetime import datetime
+#from datetime import datetime
+import discord
 from discord.ext import commands
 import json
+import pytz
 import urllib3
 urllib3.disable_warnings()
 
@@ -15,11 +17,11 @@ class Youtube:
     def __init__(self, discordClient):
         self.bot = discordClient
         self.yt_api_key = yt_api_key
+        self.localTimeZone = pytz.timezone('Europe/Oslo')
+        self.timeFormat = '%d %b %Y' + ' at ' + '%H:%M' + ' Central European'
 
     @commands.command(pass_context=True)
     async def youtube(self, ctx, stebenChannelId="UC554eY5jNUfDq3yDOJYirOQ", channelLink="https://www.youtube.com/channel/{}",videoLink="https://youtube.com/watch?v={}"):
-        if self.disableCommands:
-            return(await self.bot.say("This command is disabled"))
 
         requestString ="https://www.googleapis.com/youtube/v3/search?part=snippet&channelId={0}&maxResults=1&type=video&order=date&key={1}"
         imageUrl = "https://i.ytimg.com/vi/{}/maxresdefault.jpg"
