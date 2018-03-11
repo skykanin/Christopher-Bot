@@ -27,3 +27,6 @@ by the bot.
 This bot also logs deleted and edited messages. When this bot is added to a guild it will make a #logs channel and post all deleted and
 edited messages there. On top of that it will also save all of these messages in a database which is used to query spesific messages via
 bot commands.
+
+## Development
+To see the development status of this bot click **[here](https://github.com/skykanin/Christopher-Bot/projects)**
