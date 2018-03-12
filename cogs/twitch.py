@@ -15,14 +15,12 @@ class Twitch():
 
     @commands.command(pass_context=False)
     async def live(self, stebenChannelId=18074328, url="https://www.destiny.gg/bigscreen"):
-        if self.disableCommands:
-            return(await self.bot.say("This command is disabled"))
         stream = self.twitchClient.streams.get_live_streams(channel=stebenChannelId, stream_type="live")
-        #channelName = self.twitchClient.channels.get_by_id(int(stebenChannelId)).name.capitalize()
-        channelName = self.twitchClient.channels.get_by_id(stebenChannelId)
-        print(channelName)
+        game = stream[0]["game"]
+        viewers = stream[0]["viewers"]
+        name = stream[0]["channel"]["display_name"]
         if stream:
-            return(await self.bot.say("{0} is live right now <:WhoahDude:309736750689943552> \n{1}".format(channelName, url)))
+            return(await self.bot.say("{0} is live right now, playing {1} with {2} viewers <:WhoahDude:309736750689943552> \n{3}".format(name, game, viewers, url)))
         else:
             return(await self.bot.say("{0} is not live right now 😦".format(channelName)))
 
