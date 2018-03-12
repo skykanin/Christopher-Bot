@@ -6,8 +6,8 @@ from discord.ext.commands import Bot
 
 class Logger:
     
-    def __init__(self, bot):
-        self.bot = bot
+    def __init__(self, discordClient):
+        self.bot = discordClient
 
     async def on_server_join(self, server):
         logs = next((channel for channel in server.channels if channel.name == "logs"), None)
@@ -67,3 +67,6 @@ class Logger:
             await self.bot.send_message(logsChannel, embed=embedEditedMessage)
         except Exception as e:
             print(e)
+
+def setup(bot):
+    bot.add_cog(Logger(bot))
