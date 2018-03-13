@@ -82,7 +82,6 @@ class Config:
     async def query(self, ctx):
         # TODO: Add custom queries
         if ctx.invoked_subcommand is None and ctx.message.content is not "!query":
-            print(ctx.message.author.id == self.bot_owner_id)
             if ctx.message.author.id == self.bot_owner_id:
                 return(await self.bot.say(ctx.message.content))
             else:
