@@ -70,12 +70,12 @@ class Config:
                 return True
         return False
 
-    # Checks if role exists in guild
-    def check_role_exists(self, role_name, server_roles):
-        if role_name in server_roles:
-            return True
-        else:
-            return False
+    # Checks if role or channel exists in guild
+    def check_if_exists(self, target_name, list_name):
+        for element in list_name:
+            if target_name == element.name.lower():
+                return True
+        return False
 
     # Command for handling custom queries
     @commands.group(pass_context=True)
@@ -106,7 +106,6 @@ class Config:
         for i in range(len(guild_settings)):
             formated_guild_settings += self.settings[i] + ": " + str(guild_settings[i]) + "\n"
 
-        print(ctx.message.author.id)
         return(await self.bot.say("```sql\nSELECT * FROM '{0}'\n\n{1}```".format(self.table, formated_guild_settings)))
 
     @query.command(pass_context=True)
@@ -140,12 +139,21 @@ class Config:
         return(await self.bot.say("`commands_disabled` was switched to {}".format(commands_disabled)))
     
     @query.command(pass_context=True)
-    async def update_roll_channel(self, ctx):
-        # TODO: implement command to toggle roll_command_channel setting
+    async def update_roll_channel(self, ctx, channel : str):
         if not self.check_for_admin_role(ctx):
             return(await self.bot.say("You don't have permission to use this command"))
-        elif not self.check_role_exists(ctx.message.content, ctx.message.server.roles):
-            return(await self.bot.say("This role doesn't exist in this server"))
+        elif not self.check_if_exists(channel, ctx.message.server.channels):
+            return(await self.bot.say("{} channel doesn't exist in this server".format(channel)))
+        
+        conn = sqlite3.connect(self.db)
+        c = conn.cursor()
+        with conn:
+            try:
+                c.execute("UPDATE {0} SET {1}=? WHERE {2}={3}".format(self.table, self.settings[2], self.settings[0], ctx.message.server.id), (channel,))
+                return(await self.bot.say("{} has been updated".format(self.settings[2])))
+            except Exception as e:
+                return(await self.bot.say("Exception", e))
+        conn.close()
 
     @query.command(pass_context=True)
     async def update_admin_role(self, ctx):
