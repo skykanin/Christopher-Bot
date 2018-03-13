@@ -21,6 +21,7 @@ cogs_dir = "cogs"
 
 extensions = (
     'cogs.admin',
+    'cogs.config',
     'cogs.log',
     'cogs.osu',
     'cogs.twitch',

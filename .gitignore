@@ -11,3 +11,6 @@ config.json
 __pycache__/
 *.py[cod]
 *$py.class
+
+#Remove database file
+guild_settings.db
