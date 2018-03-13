@@ -13,6 +13,7 @@ class Config:
         self.db = 'guild_settings.db'
         self.table = 'settings'
         self.settings = ['guild_id', 'commands_disabled', 'roll_command_channel', 'admin_role']
+        self.bot_owner_id = "128122507415781379"
 
         
         ''' conn = sqlite3.connect(self.db)
@@ -80,7 +81,13 @@ class Config:
     @commands.group(pass_context=True)
     async def query(self, ctx):
         # TODO: Add custom queries
-        if ctx.invoked_subcommand is None:
+        if ctx.invoked_subcommand is None and ctx.message.content is not "!query":
+            print(ctx.message.author.id == self.bot_owner_id)
+            if ctx.message.author.id == self.bot_owner_id:
+                return(await self.bot.say(ctx.message.content))
+            else:
+                return(await self.bot.say('Only bot owner can use this command'))
+        elif ctx.invoked_subcommand is None and ctx.message.content is "!query":
             return(await self.bot.say('Invalid subcommand for query passed...'))
 
     @query.command(pass_context=True)
@@ -100,6 +107,7 @@ class Config:
         for i in range(len(guild_settings)):
             formated_guild_settings += self.settings[i] + ": " + str(guild_settings[i]) + "\n"
 
+        print(ctx.message.author.id)
         return(await self.bot.say("```sql\nSELECT * FROM '{0}'\n\n{1}```".format(self.table, formated_guild_settings)))
 
     @query.command(pass_context=True)
