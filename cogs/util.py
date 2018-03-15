@@ -15,8 +15,9 @@ class Util:
         delta = now - ctx.message.timestamp
         return(await self.bot.say('Pong! Took {}ms'.format(delta.microseconds // 1000)))
 
-    async def on_error(event):
-        raise
+    """ @ping.error
+    async def ping_error(self, error, ctx):
+        return(await self.bot.say(error)) """
 
     @commands.command(pass_context=True)
     async def nc(self, ctx, url='http://feeds.feedburner.com/NakedCapitalism'):

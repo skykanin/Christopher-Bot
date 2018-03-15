@@ -58,6 +58,10 @@ async def on_message(message, list_of_strings=['best lang', 'what is the best pr
 async def on_error(event):
     bot.connect(reconnect=True)
 
+@bot.event
+async def on_command_error(error, ctx):
+    return(await bot.send_message(ctx.message.channel, error))
+
 if __name__ == "__main__":
     for extension in [f.replace('.py', '') for f in listdir(cogs_dir) if isfile(join(cogs_dir, f))]:
         try:
