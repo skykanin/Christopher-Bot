@@ -1,4 +1,5 @@
 from datetime import datetime
+import discord
 from discord.ext import commands
 import feedparser
 import sys
@@ -24,7 +25,7 @@ class Util:
         ncFeed = feedparser.parse(url)
         todaysEntries = []
         for entry in ncFeed.entries:
-            if datetime.datetime.utcnow().timetuple().tm_yday == entry.published_parsed.tm_yday:
+            if datetime.utcnow().timetuple().tm_yday == entry.published_parsed.tm_yday:
                 todaysEntries.append(entry)
 
         if(len(todaysEntries) == 0):
@@ -42,7 +43,7 @@ class Util:
         )
 
         ncEmbed.set_footer(
-            text="Published on {}".format(datetime.datetime.utcnow().strftime('%A UTC time'))
+            text="Published on {}".format(datetime.utcnow().strftime('%A UTC time'))
         )
 
         for entry in todaysEntries:
@@ -53,7 +54,7 @@ class Util:
             )
 
         try:
-            return(await self.bot.send_message(ctx.message.channel, embed=ncEmbed))
+            return(await self.bot.say(embed=ncEmbed))
         except Exception as e:
             print(e)
         
