@@ -12,19 +12,37 @@ class Config:
         self.bot = discordClient
         self.db = 'guild_settings.db'
         self.table = 'settings'
-        self.settings = ['guild_id', 'commands_disabled', 'roll_command_channel', 'admin_role']
         self.bot_owner_id = "128122507415781379"
+        self.settings = {'guild_id': 'guild_id',
+                        'guild_name': 'guild_name',
+                        'commands_disabled': 'commands_disabled',
+                        'roll_channel': 'roll_channel',
+                        'osu_channel': 'osu_channel',
+                        'admin_role': 'admin_role'}
 
         
         ''' conn = sqlite3.connect(self.db)
         c = conn.cursor()
-        c.execute("""CREATE TABLE settings (
-                guild_id INTEGER PRIMARY KEY,
-                commands_disabled BOOLEAN,
-                roll_command_channel TEXT,
-                admin_role TEXT
-            )""") 
-        conn.commit() '''
+        with conn:
+            c.execute("""CREATE TABLE settings (
+                    guild_id INTEGER PRIMARY KEY,
+                    guild_name TEXT,
+                    commands_disabled BOOLEAN,
+                    roll_channel TEXT,
+                    osu_channel TEXT,
+                    admin_role TEXT
+                )""") 
+        conn.close() '''
+
+        ''' conn = sqlite3.connect(self.db)
+        c = conn.cursor()
+        with conn:
+            try:
+                c.execute("DROP TABLE {}".format(self.table))
+            except Exception as e:
+                print(e)
+        conn.close()
+        print("Deleted table") '''
 
     async def on_server_join(self, server):
         # Set default values when entering new guild
@@ -42,7 +60,8 @@ class Config:
         conn = sqlite3.connect(self.db)
         c = conn.cursor()
         with conn:
-            c.execute("INSERT INTO {} VALUES (?,?,?,?)".format(self.table), (server.id, False, server.default_channel.name, 'Admin',))
+            c.execute("INSERT INTO {} VALUES (?,?,?,?,?,?)".format(self.table),
+            (server.id, server.name, False, server.default_channel.name, server.default_channel.name, 'Admin',))
         conn.close()
 
     # Returns all the settings for a guild
@@ -52,15 +71,22 @@ class Config:
         with conn:
             c.execute("SELECT * FROM {} WHERE guild_id=?".format(self.table), (server.id,))
             guild_settings = c.fetchone()
+
+            c.execute('PRAGMA TABLE_INFO({})'.format(self.table))
+            names = [tup[1] for tup in c.fetchall()]
         conn.close()
-        return guild_settings
+
+        for i in range(len(names)):
+            names[i] = str(names[i]) + ": " + str(guild_settings[i])
+
+        return names
     
     def check_for_admin_role(self, ctx):
         # Get admin role name for specific guild
         conn = sqlite3.connect(self.db)
         c = conn.cursor()
         with conn:
-            c.execute("SELECT {} FROM {} WHERE guild_id=?".format(self.settings[3], self.table), (ctx.message.server.id,))
+            c.execute("SELECT {} FROM {} WHERE guild_id=?".format(self.settings['admin_role'], self.table), (ctx.message.server.id,))
             guild_role = c.fetchone()[0]
         conn.close()
 
@@ -75,7 +101,7 @@ class Config:
         # if we are checking channel
         if check_type == 'channel':         
             for element in list_name:
-                print("target:",target_name, "channel:",element.name, "type:",str(element.type))
+                # print("target:",target_name, "channel:",element.name, "type:",str(element.type))
                 if target_name == element.name and str(element.type) == 'text':
                     return True
             return False
@@ -89,11 +115,35 @@ class Config:
     # Command for handling custom queries
     @commands.group(pass_context=True, invoke_without_command=True)
     async def query(self, ctx, *args):
-        # TODO: Add custom queries
-        #args = ' '.join(args)
-        print(*args)
-        if ctx.invoked_subcommand is None:
+        if ctx.invoked_subcommand is None and args == "":
             return(await self.bot.say('Invalid subcommand for query passed...'))
+
+        #print(args[0])
+        #print("select".capitalize())
+        if args[0] == 'select' or args[0] == "select".upper():
+            query_type = 'get'
+        else:
+            query_type = 'set'
+
+        query = ' '.join(args)
+        conn = sqlite3.connect(self.db)
+        c = conn.cursor()
+
+        if query_type == 'get':
+            with conn:
+                try:
+                    c.execute(query)
+                    get = c.fetchall()
+                    return(await self.bot.say(get))
+                except Exception as e:
+                    return(await self.bot.say(e))
+        else:
+            with conn:
+                try:
+                    c.execute(query)
+                    return(await self.bot.say("Query executed"))
+                except Exception as e:
+                    return(await self.bot.say(e))
 
     @query.command(pass_context=True)
     #@commands.check(check_for_admin_role)
@@ -102,7 +152,7 @@ class Config:
         if not self.check_for_admin_role(ctx):
             return(await self.bot.say("You don't have permission to use this command"))
 
-        #Gets guild settings from database
+        # Gets guild settings from database
         try:
             guild_settings = self.fetch_guild_settings(ctx.message.server)
         except Exception:
@@ -110,10 +160,10 @@ class Config:
 
         formated_guild_settings = ""
 
-        for i in range(len(guild_settings)):
-            formated_guild_settings += self.settings[i] + ": " + str(guild_settings[i]) + "\n"
+        for element in guild_settings:
+            formated_guild_settings += element + "\n"
 
-        return(await self.bot.say("```sql\nSELECT * FROM '{0}'\n\n{1}```".format(self.table, formated_guild_settings)))
+        return(await self.bot.say("```sql\nSELECT * FROM '{0}' WHERE guild_id=\n\n{1}```".format(self.table, formated_guild_settings)))
 
     @query.command(pass_context=True)
     async def switch_commands(self, ctx):
@@ -156,8 +206,8 @@ class Config:
         c = conn.cursor()
         with conn:
             try:
-                c.execute("UPDATE {0} SET {1}=? WHERE {2}={3}".format(self.table, self.settings[2], self.settings[0], ctx.message.server.id), (channel,))
-                return(await self.bot.say("`{0}` has been updated to `{1}`".format(self.settings[2], channel)))
+                c.execute("UPDATE {0} SET {1}=? WHERE {2}={3}".format(self.table, self.settings['roll_channel'], self.settings['guild_id'], ctx.message.server.id), (channel,))
+                return(await self.bot.say("`{0}` has been updated to `{1}`".format(self.settings['roll_channel'], channel)))
             except Exception as e:
                 return(await self.bot.say("Exception", e))
         conn.close()
@@ -173,8 +223,8 @@ class Config:
         c = conn.cursor()
         with conn:
             try:
-                c.execute("UPDATE {0} SET {1}=? WHERE {2}={3}".format(self.table, self.settings[3], self.settings[0], ctx.message.server.id), (role,))
-                return(await self.bot.say("`{0}` has been updated to `{1}`".format(self.settings[3], role)))
+                c.execute("UPDATE {0} SET {1}=? WHERE {2}={3}".format(self.table, self.settings['admin_role'], self.settings['guild_id'], ctx.message.server.id), (role,))
+                return(await self.bot.say("`{0}` has been updated to `{1}`".format(self.settings['admin_role'], role)))
             except Exception as e:
                 return(await self.bot.say("Exception", e))
         conn.close()
