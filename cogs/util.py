@@ -1,6 +1,7 @@
 from datetime import datetime
 from discord.ext import commands
 import feedparser
+import sys
 
 class Util:
     
@@ -8,10 +9,14 @@ class Util:
         self.bot = discordClient
     
     @commands.command(pass_context=True)
+    @commands.cooldown(1,10.0,type=commands.BucketType.user)
     async def ping(self, ctx):
-        now = datetime.datetime.utcnow()
+        now = datetime.utcnow()
         delta = now - ctx.message.timestamp
         return(await self.bot.say('Pong! Took {}ms'.format(delta.microseconds // 1000)))
+
+    async def on_error(event):
+        raise
 
     @commands.command(pass_context=True)
     async def nc(self, ctx, url='http://feeds.feedburner.com/NakedCapitalism'):

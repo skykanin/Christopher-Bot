@@ -60,33 +60,39 @@ class Config:
         conn = sqlite3.connect(self.db)
         c = conn.cursor()
         with conn:
-            c.execute("SELECT {} FROM {} WHERE guild_id=?".format('admin_role', self.table), (ctx.message.server.id,))
-            guild_role = c.fetchone()
+            c.execute("SELECT {} FROM {} WHERE guild_id=?".format(self.settings[3], self.table), (ctx.message.server.id,))
+            guild_role = c.fetchone()[0]
         conn.close()
 
         # Check if user has the guild admin role  
         for role in ctx.message.author.roles:
-            if role.name in guild_role:
+            if role.name == guild_role.title():
                 return True
         return False
 
     # Checks if role or channel exists in guild
-    def check_if_exists(self, target_name, list_name):
-        for element in list_name:
-            if target_name == element.name.lower():
-                return True
-        return False
+    def check_if_exists(self, target_name, list_name, check_type):
+        # if we are checking channel
+        if check_type == 'channel':         
+            for element in list_name:
+                print("target:",target_name, "channel:",element.name, "type:",str(element.type))
+                if target_name == element.name and str(element.type) == 'text':
+                    return True
+            return False
+        # if we are checking role
+        elif check_type == 'role':
+            for element in list_name:
+                if target_name == element.name:
+                    return True
+            return False
 
     # Command for handling custom queries
-    @commands.group(pass_context=True)
-    async def query(self, ctx):
+    @commands.group(pass_context=True, invoke_without_command=True)
+    async def query(self, ctx, *args):
         # TODO: Add custom queries
-        if ctx.invoked_subcommand is None and ctx.message.content is not "!query":
-            if ctx.message.author.id == self.bot_owner_id:
-                return(await self.bot.say(ctx.message.content))
-            else:
-                return(await self.bot.say('Only bot owner can use this command'))
-        elif ctx.invoked_subcommand is None and ctx.message.content is "!query":
+        #args = ' '.join(args)
+        print(*args)
+        if ctx.invoked_subcommand is None:
             return(await self.bot.say('Invalid subcommand for query passed...'))
 
     @query.command(pass_context=True)
@@ -132,34 +138,45 @@ class Config:
         with conn:
             try:
                 c.execute("UPDATE {} SET commands_disabled=? WHERE guild_id=?".format(self.table), (commands_disabled, ctx.message.server.id,))
+                return(await self.bot.say("`commands_disabled` was switched to {}".format(commands_disabled)))
             except Exception:
                 return(await bot.say("Exception:", e))
         conn.close()
 
-        return(await self.bot.say("`commands_disabled` was switched to {}".format(commands_disabled)))
     
     @query.command(pass_context=True)
     async def update_roll_channel(self, ctx, channel : str):
         if not self.check_for_admin_role(ctx):
             return(await self.bot.say("You don't have permission to use this command"))
-        elif not self.check_if_exists(channel, ctx.message.server.channels):
-            return(await self.bot.say("{} channel doesn't exist in this server".format(channel)))
+        elif not self.check_if_exists(channel, ctx.message.server.channels, 'channel'):
+            return(await self.bot.say("`{}` text channel doesn't exist in this server".format(channel)))
         
         conn = sqlite3.connect(self.db)
         c = conn.cursor()
         with conn:
             try:
                 c.execute("UPDATE {0} SET {1}=? WHERE {2}={3}".format(self.table, self.settings[2], self.settings[0], ctx.message.server.id), (channel,))
-                return(await self.bot.say("{} has been updated".format(self.settings[2])))
+                return(await self.bot.say("`{0}` has been updated to `{1}`".format(self.settings[2], channel)))
             except Exception as e:
                 return(await self.bot.say("Exception", e))
         conn.close()
 
     @query.command(pass_context=True)
-    async def update_admin_role(self, ctx):
-        # TODO: implement command to toggle admin_role setting
-        print("Nothing here yet")
-
+    async def update_admin_role(self, ctx, role : str):
+        if not self.check_for_admin_role(ctx):
+            return(await self.bot.say("You don't have permission to use this command"))
+        elif not self.check_if_exists(role, ctx.message.server.roles, 'role'):
+            return(await self.bot.say("`{}` role doesn't exist in this server".format(role)))
+        
+        conn = sqlite3.connect(self.db)
+        c = conn.cursor()
+        with conn:
+            try:
+                c.execute("UPDATE {0} SET {1}=? WHERE {2}={3}".format(self.table, self.settings[3], self.settings[0], ctx.message.server.id), (role,))
+                return(await self.bot.say("`{0}` has been updated to `{1}`".format(self.settings[3], role)))
+            except Exception as e:
+                return(await self.bot.say("Exception", e))
+        conn.close()
 
 def setup(bot):
     bot.add_cog(Config(bot))
