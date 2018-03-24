@@ -155,8 +155,8 @@ class Config:
         # Gets guild settings from database
         try:
             guild_settings = self.fetch_guild_settings(ctx.message.server)
-        except Exception:
-            return(await bot.say("Exception:", e))
+        except Exception as e:
+            return(await self.bot.say("Exception:", e))
 
         formated_guild_settings = ""
 
@@ -176,8 +176,8 @@ class Config:
         with conn:
             try:
                 c.execute("SELECT commands_disabled FROM {} WHERE guild_id=?".format(self.table), (ctx.message.server.id,))
-            except Exception:
-                return(await bot.say("Exception:", e))
+            except Exception as e:
+                return(await self.bot.say("Exception:", e))
 
             commands_disabled = c.fetchone()[0]
         
@@ -190,8 +190,8 @@ class Config:
             try:
                 c.execute("UPDATE {} SET commands_disabled=? WHERE guild_id=?".format(self.table), (commands_disabled, ctx.message.server.id,))
                 return(await self.bot.say("`commands_disabled` was switched to {}".format(commands_disabled)))
-            except Exception:
-                return(await bot.say("Exception:", e))
+            except Exception as e:
+                return(await self.bot.say("Exception:", e))
         conn.close()
 
     
