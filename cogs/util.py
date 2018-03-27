@@ -3,11 +3,21 @@ import discord
 from discord.ext import commands
 import feedparser
 import sys
+import random
+import sqlite3
 
 class Util:
     
     def __init__(self, discordClient):
         self.bot = discordClient
+        self.db = 'guild_settings.db'
+        self.table = 'settings'
+        self.settings = {'guild_id': 'guild_id',
+                        'guild_name': 'guild_name',
+                        'commands_disabled': 'commands_disabled',
+                        'roll_channel': 'roll_channel',
+                        'osu_channel': 'osu_channel',
+                        'admin_role': 'admin_role'}
     
     @commands.command(pass_context=True)
     @commands.cooldown(1,10.0,type=commands.BucketType.user)
@@ -57,9 +67,24 @@ class Util:
             return(await self.bot.say(embed=ncEmbed))
         except Exception as e:
             print(e)
-        
+
+    def check_roll_channel(self, server):
+        conn = sqlite3.connect(self.db)
+        c = conn.cursor()
+        with conn:
+            c.execute("SELECT roll_channel FROM {} WHERE guild_id=?".format(self.table), (server.id,))
+            guild_settings = c.fetchone()
+        conn.close()
+        return(guild_settings[0])
+
     @commands.command(pass_context=True)
+    @commands.cooldown(1,10.0,type=commands.BucketType.user)
     async def roll(self, ctx):
+        roll_channel = self.check_roll_channel(ctx.message.server)
+
+        if not roll_channel == ctx.message.channel.name:
+            return(await self.bot.say("You can only use this command in the {} channel".format(roll_channel)))
+
         string = ctx.message.content
         maxVal = 100
     

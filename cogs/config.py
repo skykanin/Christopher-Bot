@@ -146,7 +146,6 @@ class Config:
                     return(await self.bot.say(e))
 
     @query.command(pass_context=True)
-    #@commands.check(check_for_admin_role)
     async def print_settings(self, ctx):
         # Check if user has permission to use this command
         if not self.check_for_admin_role(ctx):
