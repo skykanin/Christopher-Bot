@@ -14,3 +14,6 @@ __pycache__/
 
 #Remove database file
 guild_settings.db
+
+#Remove DS_Store
+.DS_Store
