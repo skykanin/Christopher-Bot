@@ -34,7 +34,7 @@ class Config:
                 )""") 
         conn.close() '''
 
-        ''' conn = sqlite3.connect(self.db)
+        """ conn = sqlite3.connect(self.db)
         c = conn.cursor()
         with conn:
             try:
@@ -42,7 +42,7 @@ class Config:
             except Exception as e:
                 print(e)
         conn.close()
-        print("Deleted table") '''
+        print("Deleted table") """
 
     async def on_server_join(self, server):
         # Set default values when entering new guild
