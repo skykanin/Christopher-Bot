@@ -57,11 +57,17 @@ class Config:
         print(self.fetch_guild_settings(server))
 
     def add_default_values(self, server):
+        # Choose the first text channel as default channel
+        for channel in server.channels:
+            if str(channel.type) == "text":
+                defualt = channel.name
+                break
+
         conn = sqlite3.connect(self.db)
         c = conn.cursor()
         with conn:
             c.execute("INSERT INTO {} VALUES (?,?,?,?,?,?)".format(self.table),
-            (server.id, server.name, False, server.default_channel.name, server.default_channel.name, 'Admin',))
+            (server.id, server.name, False, defualt, defualt, 'Admin',))
         conn.close()
 
     # Returns all the settings for a guild
@@ -162,7 +168,7 @@ class Config:
         for element in guild_settings:
             formated_guild_settings += element + "\n"
 
-        return(await self.bot.say("```sql\nSELECT * FROM '{0}' WHERE guild_id=\n\n{1}```".format(self.table, formated_guild_settings)))
+        return(await self.bot.say("```sql\nSELECT * FROM '{0}' WHERE guild_id={1}\n\n{2}```".format(self.table, guild_settings[0][10:], formated_guild_settings)))
 
     @query.command(pass_context=True)
     async def switch_commands(self, ctx):
@@ -207,6 +213,23 @@ class Config:
             try:
                 c.execute("UPDATE {0} SET {1}=? WHERE {2}={3}".format(self.table, self.settings['roll_channel'], self.settings['guild_id'], ctx.message.server.id), (channel,))
                 return(await self.bot.say("`{0}` has been updated to `{1}`".format(self.settings['roll_channel'], channel)))
+            except Exception as e:
+                return(await self.bot.say("Exception", e))
+        conn.close()
+
+    @query.command(pass_context=True)
+    async def update_osu_channel(self, ctx, channel : str):
+        if not self.check_for_admin_role(ctx):
+            return(await self.bot.say("You don't have permission to use this command"))
+        elif not self.check_if_exists(channel, ctx.message.server.channels, 'channel'):
+            return(await self.bot.say("`{}` text channel doesn't exist in this server".format(channel)))
+        
+        conn = sqlite3.connect(self.db)
+        c = conn.cursor()
+        with conn:
+            try:
+                c.execute("UPDATE {0} SET {1}=? WHERE {2}={3}".format(self.table, self.settings['osu_channel'], self.settings['guild_id'], ctx.message.server.id), (channel,))
+                return(await self.bot.say("`{0}` has been updated to `{1}`".format(self.settings['osu_channel'], channel)))
             except Exception as e:
                 return(await self.bot.say("Exception", e))
         conn.close()
