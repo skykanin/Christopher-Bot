@@ -4,6 +4,7 @@ import discord
 from discord.ext import commands
 import json
 import pytz
+import sqlite3
 import urllib3
 urllib3.disable_warnings()
 
@@ -19,9 +20,29 @@ class Youtube:
         self.yt_api_key = yt_api_key
         self.localTimeZone = pytz.timezone('Europe/Oslo')
         self.timeFormat = '%d %b %Y' + ' at ' + '%H:%M' + ' Central European'
+        self.db = 'guild_settings.db'
+        self.table = 'settings'
+        self.settings = {'guild_id': 'guild_id',
+                        'guild_name': 'guild_name',
+                        'commands_disabled': 'commands_disabled',
+                        'roll_channel': 'roll_channel',
+                        'osu_channel': 'osu_channel',
+                        'admin_role': 'admin_role'}
+
+    def check_command_disabled(self, server):
+        conn = sqlite3.connect(self.db)
+        c = conn.cursor()
+        with conn:
+            c.execute("SELECT {} FROM {} WHERE guild_id=?".format(self.settings['commands_disabled'], self.table), (server.id,))
+            commands_disabled = c.fetchone()
+        conn.close()
+        return(commands_disabled[0] == 0)
 
     @commands.command(pass_context=True)
+    @commands.cooldown(1,10.0,type=commands.BucketType.user)
     async def youtube(self, ctx, stebenChannelId="UC554eY5jNUfDq3yDOJYirOQ", channelLink="https://www.youtube.com/channel/{}",videoLink="https://youtube.com/watch?v={}"):
+        if not self.check_command_disabled(ctx.message.server):
+            return(await self.bot.say("This command is disabled"))
 
         requestString ="https://www.googleapis.com/youtube/v3/search?part=snippet&channelId={0}&maxResults=1&type=video&order=date&key={1}"
         imageUrl = "https://i.ytimg.com/vi/{}/maxresdefault.jpg"

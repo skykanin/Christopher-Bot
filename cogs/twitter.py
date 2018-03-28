@@ -1,10 +1,12 @@
+#!/usr/local/bin/python3
 from datetime import datetime
 import discord
 from discord.ext import commands
 import json
 import pytz
-import twitter
-from twitter.error import TwitterError
+import sqlite3
+from twitter import Api
+from twitter import TwitterError
 
 with open("config.json") as f:
     config = json.loads(f.read())
@@ -18,14 +20,32 @@ class Twitter:
     
     def __init__(self, discordClient):
         self.bot = discordClient
-        self.api = twitter.Api(consumer_key=consumerKey, consumer_secret=consumerSecret,
+        self.api = Api(consumer_key=consumerKey, consumer_secret=consumerSecret,
         access_token_key=accessTokenKey, access_token_secret=accessTokenSecret)
         self.localTimeZone = pytz.timezone('Europe/Oslo')
         self.timeFormat = '%d %b %Y' + ' at ' + '%H:%M' + ' Central European'
+        self.db = 'guild_settings.db'
+        self.table = 'settings'
+        self.settings = {'guild_id': 'guild_id',
+                        'guild_name': 'guild_name',
+                        'commands_disabled': 'commands_disabled',
+                        'roll_channel': 'roll_channel',
+                        'osu_channel': 'osu_channel',
+                        'admin_role': 'admin_role'}
+
+    def check_command_disabled(self, server):
+        conn = sqlite3.connect(self.db)
+        c = conn.cursor()
+        with conn:
+            c.execute("SELECT {} FROM {} WHERE guild_id=?".format(self.settings['commands_disabled'], self.table), (server.id,))
+            commands_disabled = c.fetchone()
+        conn.close()
+        return(commands_disabled[0] == 0)
 
     @commands.command(pass_context=True)
+    @commands.cooldown(1,10.0,type=commands.BucketType.user)
     async def twitter(self, ctx, stebenTwitterId=962385627663695872):
-        if self.disableCommands:
+        if not self.check_command_disabled(ctx.message.server):
             return(await self.bot.say("This command is disabled"))
 
         try:
@@ -46,7 +66,7 @@ class Twitter:
             url = "https://twitter.com/{}".format(tweetObject["user"]["screen_name"]),
             icon_url = tweetObject["user"]["profile_image_url"]
         )
-        utcTime = datetime.datetime.strptime(tweetObject["created_at"][4:], '%b %d %H:%M:%S %z %Y')
+        utcTime = datetime.strptime(tweetObject["created_at"][4:], '%b %d %H:%M:%S %z %Y')
         localTime = utcTime.astimezone(self.localTimeZone).strftime(self.timeFormat)
         embedTweet.set_footer(text = localTime)
         return(await self.bot.send_message(ctx.message.channel, embed=embedTweet))
