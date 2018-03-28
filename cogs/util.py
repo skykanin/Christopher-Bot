@@ -1,4 +1,5 @@
 from datetime import datetime
+import dice
 import discord
 from discord.ext import commands
 import feedparser
@@ -78,32 +79,19 @@ class Util:
         return(guild_settings[0])
 
     @commands.command(pass_context=True)
-    @commands.cooldown(1,10.0,type=commands.BucketType.user)
-    async def roll(self, ctx):
+    @commands.cooldown(1,15.0,type=commands.BucketType.user)
+    async def roll(self, ctx, arg, docs="https://github.com/borntyping/python-dice/blob/master/README.rst"):
         roll_channel = self.check_roll_channel(ctx.message.server)
 
         if not roll_channel == ctx.message.channel.name:
             return(await self.bot.say("You can only use this command in the {} channel".format(roll_channel)))
 
-        string = ctx.message.content
-        maxVal = 100
-    
-        if string == '!roll':
-            return(await self.bot.say("{}".format(random.randint(1,maxVal))))
-        
-        diceFaces = string.split(" ",1)[1]
-        
         try:
-            diceFacesValue = int(diceFaces)
-        except Exception:
-            return(await self.bot.say("Bad input, argument must be an integer"))
-
-        print(diceFacesValue)
-        if diceFacesValue > 0 and diceFacesValue <= maxVal:
-            return(await self.bot.say("{}".format(random.randint(1,diceFacesValue))))
-
-        return(await self.bot.say("Number must be between 1 and 100. Example of correct use !roll 6"))
-
+            result = dice.roll(str(arg))
+            return(await self.bot.say(result))
+        except dice.DiceBaseException as e:
+            return(await self.bot.say("{0}\n\nIf you want the full documentation for the parser check this out:\n<{1}>".format(e.pretty_print(), docs)))
+        
     @commands.command(pass_context=True)
     async def about(self, ctx):
         embed = discord.Embed(
