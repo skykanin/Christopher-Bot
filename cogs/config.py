@@ -107,7 +107,6 @@ class Config:
         # if we are checking channel
         if check_type == 'channel':         
             for element in list_name:
-                # print("target:",target_name, "channel:",element.name, "type:",str(element.type))
                 if target_name == element.name and str(element.type) == 'text':
                     return True
             return False
@@ -124,8 +123,6 @@ class Config:
         if ctx.invoked_subcommand is None and args == "":
             return(await self.bot.say('Invalid subcommand for query passed...'))
 
-        #print(args[0])
-        #print("select".capitalize())
         if args[0] == 'select' or args[0] == "select".upper():
             query_type = 'get'
         else:
