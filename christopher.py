@@ -54,9 +54,9 @@ async def on_message(message, list_of_strings=['best lang', 'what is the best pr
         await bot.add_reaction(message, pepeComfy)       
     await bot.process_commands(message)
 
-""" @bot.event
+@bot.event
 async def on_error(event):
-    bot.connect(reconnect=True) """
+    bot.connect(reconnect=True)
 
 """ @bot.event
 async def on_command_error(error, ctx):
