@@ -165,7 +165,7 @@ class Config:
         for element in guild_settings:
             formated_guild_settings += element + "\n"
 
-        return(await self.bot.say("```sql\nSELECT * FROM '{0}' WHERE guild_id={1}\n\n{2}```".format(self.table, guild_settings[0][10:], formated_guild_settings)))
+        return(await self.bot.say("```sql\nSELECT * FROM '{0}' WHERE guild_id={1};\n\n{2}```".format(self.table, guild_settings[0][10:], formated_guild_settings)))
 
     @query.command(pass_context=True)
     async def switch_commands(self, ctx):
