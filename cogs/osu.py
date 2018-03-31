@@ -69,7 +69,8 @@ class Osu:
 
         profile_embed.add_field(
             name = "Experience",
-            value = "Playcount: {0}\nLevel: {1}\n".format(data.playcount, lvl)
+            value = "Playcount: {0}\nLevel: {1}\n".format(data.playcount, lvl),
+            inline = True
         )
 
         profile_embed.add_field(
@@ -87,10 +88,53 @@ class Osu:
         )
 
         return(await self.bot.send_message(ctx.message.channel, embed=profile_embed))
-    
+
+    @osu.command(pass_context=True)
+    async def best(self, ctx, username, mode_arg="standard"):
+        if self.check_correct_channel(ctx.message):
+            return(await self.bot.say('You cannot use this command in this channel'))
+
+        if mode_arg not in self.modeMap:
+            return(await self.bot.say('Not a valid game mode'))
+        else:
+            result = self.osuApi.get_user_best(username,mode=self.modeMap[mode_arg], limit=1)
+        
+        if not result:
+            return(await self.bot.say("User doesn't exist"))
+        
+        data = result[0] #get first and only result
+        
+        best_embed = discord.Embed(
+            url = "https://osu.ppy.sh/users/{}".format(data.user_id),
+            color = 0xea1595
+        )
+
+        best_embed.add_field(
+            name="Score",
+            value="Score: {0}\nMax Combo: {1}\nPerfect: {2}".format(data.score, data.maxcombo, data.perfect),
+            inline = True
+        )
+
+        best_embed.add_field(
+            name="Count",
+            value="Count50: {0}\nCount100: {1}\nCount300: {2}\nMisses: {3}".format(data.count50, data.count100, data.count300, data.countmiss),
+            inline=True
+        )
+
+        best_embed.set_author(
+            name = username,
+            url = "https://osu.ppy.sh/users/{}".format(data.user_id),
+            icon_url = "http://s.ppy.sh/a/{}".format(data.user_id)
+        )
+
+        return(await self.bot.send_message(ctx.message.channel, embed=best_embed))
+
+    @best.error
     @profile.error
-    async def profile_error(self, error, ctx):
+    async def error(self, error, ctx):
         return(await self.bot.send_message(ctx.message.channel, str(error).capitalize()))
+
+
 
 def setup(bot):
     bot.add_cog(Osu(bot))
