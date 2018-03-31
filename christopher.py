@@ -56,7 +56,8 @@ async def on_message(message, list_of_strings=['best lang', 'what is the best pr
 
 @bot.event
 async def on_error(event):
-    bot.connect(reconnect=True)
+    bot.close()
+    bot.connect()
 
 """ @bot.event
 async def on_command_error(error, ctx):
