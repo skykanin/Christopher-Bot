@@ -91,6 +91,10 @@ class Util:
             return(await self.bot.say(result))
         except dice.DiceBaseException as e:
             return(await self.bot.say("{0}\n\nIf you want the full documentation for the parser check this out:\n<{1}>".format(e.pretty_print(), docs)))
+    
+    @roll.error
+    async def roll_error(self, error, ctx):
+        return(await self.bot.say(error))
         
     @commands.command(pass_context=True)
     async def about(self, ctx):
