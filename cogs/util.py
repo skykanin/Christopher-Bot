@@ -3,14 +3,23 @@ import dice
 import discord
 from discord.ext import commands
 import feedparser
+import json
 import sys
 import random
 import sqlite3
+import pyimgur
+
+with open("config.json") as f:
+    config = json.loads(f.read())
+
+client_id = config["imgur_client_id"]
+client_secret = config["imgur_client_secret"]
 
 class Util:
     
     def __init__(self, discordClient):
         self.bot = discordClient
+        self.imgurClient = pyimgur.Imgur(client_id)
         self.db = 'guild_settings.db'
         self.table = 'settings'
         self.settings = {'guild_id': 'guild_id',
@@ -95,7 +104,23 @@ class Util:
     @roll.error
     async def roll_error(self, error, ctx):
         return(await self.bot.say(error))
-        
+
+    @commands.command(pass_context=True)
+    @commands.cooldown(1,10.0,type=commands.BucketType.user)
+    async def rms(self, ctx, album_id="7K5Gcmh", imgur_link="https://imgur.com/a/7K5Gcmh"):
+        rms_images = self.imgurClient.get_album(album_id).images
+        rand_int = random.randint(0, len(rms_images)-1)
+        rand_image = rms_images[rand_int].link
+
+        image_embed = discord.Embed(title="Our GNU/Lord and GNU/Savior")
+        image_embed.set_image(url=rand_image)
+
+        return(await self.bot.send_message(ctx.message.channel, embed=image_embed))
+    
+    @rms.error
+    async def roll_error(self, error, ctx):
+        return(await self.bot.say(error))
+
     @commands.command(pass_context=True)
     async def about(self, ctx):
         embed = discord.Embed(
