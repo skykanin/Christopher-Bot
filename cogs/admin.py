@@ -1,28 +1,41 @@
 #!/usr/bin/python3
 import discord
 from discord.ext import commands
+import sqlite3
 
 class Admin:
     
     def __init__(self, discordClient):
         self.bot = discordClient
-        self.adminRoleName = "Admin"
+        self.db = 'guild_settings.db'
+        self.table = 'settings'
+        self.settings = {'guild_id': 'guild_id',
+                        'guild_name': 'guild_name',
+                        'commands_disabled': 'commands_disabled',
+                        'roll_channel': 'roll_channel',
+                        'osu_channel': 'osu_channel',
+                        'admin_role': 'admin_role'}
+
+    def check_for_admin_role(self, ctx):
+        # Get admin role name for specific guild
+        conn = sqlite3.connect(self.db)
+        c = conn.cursor()
+        with conn:
+            c.execute("SELECT {} FROM {} WHERE guild_id=?".format(self.settings['admin_role'], self.table), (ctx.message.server.id,))
+            guild_role = c.fetchone()[0]
+        conn.close()
+
+        # Check if user has the guild admin role  
+        for role in ctx.message.author.roles:
+            if role.name == guild_role.title():
+                return True
+        return False
 
     async def mute_function(self, ctx):
-        if self.disableCommands:
-            return(await self.bot.say("This command is disabled"))
-        
         toMute = ctx.message.content.split(' ')[0] == "!mute"
-
-        hasAdminRole = False
         serverRoles = ctx.message.server.roles
 
-        for e in ctx.message.author.roles:
-            if e.name == self.adminRoleName:
-                hasAdminRole = True
-                break
-
-        if not hasAdminRole:
+        if not self.check_for_admin_role(ctx):
             return(await self.bot.say("You don't have permission to use this command <:OverRustle:286162736625352716>"))
         
         if not ctx.message.mentions:
@@ -42,9 +55,7 @@ class Admin:
                 if mutedRole in memberToToggleMute.roles:
                     return(await self.bot.say("{} already has the Muted role".format(mentionedMember)))
                 try:
-                    print("Roles to add", mutedRole)
                     await self.bot.add_roles(memberToToggleMute, mutedRole)
-                    print("Roles after addition", memberToToggleMute.roles)
                 except discord.Forbidden:
                     return(await self.bot.say(forbiddenMessage))
                 except discord.HTTPException:
@@ -54,9 +65,7 @@ class Admin:
                 if mutedRole not in memberToToggleMute.roles:
                     return(await self.bot.say("{} does not have the Muted role".format(mentionedMember)))
                 try:
-                    print("Roles to remove:", mutedRole)
                     await self.bot.remove_roles(memberToToggleMute, mutedRole)
-                    print("Roles after removal", memberToToggleMute.roles)
                 except discord.Forbidden:
                     return(await self.bot.say(forbiddenMessage))
                 except discord.HTTPException:
