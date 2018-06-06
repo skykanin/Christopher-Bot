@@ -49,7 +49,7 @@ class Util:
         todaysEntries = []
 
         for entry in ncFeed.entries:
-            if datetime.utcnow().astimezone(offset).timetuple().tm_yday == entry.published_parsed.tm_yday:
+            if datetime.now(tz=offset).timetuple().tm_yday == entry.published_parsed.tm_yday:
                 todaysEntries.append(entry)
 
         if(len(todaysEntries) == 0):
@@ -67,7 +67,7 @@ class Util:
         )
 
         ncEmbed.set_footer(
-            text="Published on {}".format(datetime.utcnow().astimezone(offset).strftime('%A EST time'))
+            text="Published on {}".format(datetime.now(tz=offset).strftime('%A EST time'))
         )
 
         for entry in todaysEntries:
