@@ -137,8 +137,16 @@ class Util:
         return(await self.bot.send_message(ctx.message.channel, embed=embed))
     
     @commands.command(pass_context=False)
+    async def ts(self):
+        return(await self.bot.say("T Y P E    S A F E"))
+
+    @commands.command(pass_context=False)
     async def commands(self):
         return(await self.bot.say("For a full list of all my commands and how to use them, checkout my github repository (https://github.com/skykanin/Christopher-Bot) README file"))
+
+    async def on_message_delete(self, message):
+        if message.content == "T Y P E    S A F E":
+            await self.bot.send_message(message.channel, "T Y P E    S A F E")
 
 def setup(bot):
     bot.add_cog(Util(bot))
