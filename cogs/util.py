@@ -4,10 +4,12 @@ import discord
 from discord.ext import commands
 import feedparser
 import json
-import sys
-import random
-import sqlite3
 import pyimgur
+import pytz
+import random
+import sys
+import sqlite3
+from time import strftime
 
 with open("config.json") as f:
     config = json.loads(f.read())
@@ -41,11 +43,13 @@ class Util:
         return(await self.bot.say(error)) """
 
     @commands.command(pass_context=True)
-    async def nc(self, ctx, url='http://feeds.feedburner.com/NakedCapitalism'):
+    async def nc(self, ctx, timezone='America/New_York', url='http://feeds.feedburner.com/NakedCapitalism'):
         ncFeed = feedparser.parse(url)
+        offset = pytz.timezone(timezone)
         todaysEntries = []
+
         for entry in ncFeed.entries:
-            if datetime.utcnow().timetuple().tm_yday == entry.published_parsed.tm_yday:
+            if datetime.utcnow().astimezone(offset).timetuple().tm_yday == entry.published_parsed.tm_yday:
                 todaysEntries.append(entry)
 
         if(len(todaysEntries) == 0):
@@ -63,7 +67,7 @@ class Util:
         )
 
         ncEmbed.set_footer(
-            text="Published on {}".format(datetime.utcnow().strftime('%A UTC time'))
+            text="Published on {}".format(datetime.utcnow().astimezone(offset).strftime('%A EST time'))
         )
 
         for entry in todaysEntries:
