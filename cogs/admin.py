@@ -21,7 +21,7 @@ class Admin:
         conn = sqlite3.connect(self.db)
         c = conn.cursor()
         with conn:
-            c.execute("SELECT {} FROM {} WHERE guild_id=?".format(self.settings['admin_role'], self.table), (ctx.message.server.id,))
+            c.execute("SELECT {} FROM {} WHERE guild_id=?".format(self.settings['admin_role'], self.table), (ctx.message.guild.id,))
             guild_role = c.fetchone()[0]
         conn.close()
 
@@ -33,19 +33,19 @@ class Admin:
 
     async def mute_function(self, ctx):
         toMute = ctx.message.content.split(' ')[0] == "!mute"
-        serverRoles = ctx.message.server.roles
+        serverRoles = ctx.message.guild.roles
 
         if not self.check_for_admin_role(ctx):
-            return(await self.bot.say("You don't have permission to use this command <:OverRustle:286162736625352716>"))
+            return(await ctx.send("You don't have permission to use this command <:OverRustle:286162736625352716>"))
         
         if not ctx.message.mentions:
             if toMute:
-                return(await self.bot.say("You haven't passed an argument. The command is: !mute <mentionUser>"))
+                return(await ctx.send("You haven't passed an argument. The command is: !mute <mentionUser>"))
             else:
-                return(await self.bot.say("You haven't passed an argument. The command is: !unmute <mentionUser>"))
+                return(await ctx.send("You haven't passed an argument. The command is: !unmute <mentionUser>"))
         else:
             mentionedMember = ctx.message.mentions[0]
-            memberToToggleMute = ctx.message.server.get_member(mentionedMember.id)
+            memberToToggleMute = ctx.message.guild.get_member(mentionedMember.id)
             mutedRole = self.get_role(serverRoles, 'Muted')
             forbiddenMessage = "I don't have permission to do that! <:pepoS:350644750191165441>"
             failedMessage = "Failed to {} role! <:pepoS:350644750191165441>"
@@ -53,30 +53,30 @@ class Admin:
 
             if toMute:
                 if mutedRole in memberToToggleMute.roles:
-                    return(await self.bot.say("{} already has the Muted role".format(mentionedMember)))
+                    return(await ctx.send("{} already has the Muted role".format(mentionedMember)))
                 try:
-                    await self.bot.add_roles(memberToToggleMute, mutedRole)
+                    await memberToToggleMute.add_roles(mutedRole)
                 except discord.Forbidden:
-                    return(await self.bot.say(forbiddenMessage))
+                    return(await ctx.send(forbiddenMessage))
                 except discord.HTTPException:
-                    return(await self.bot.say(failedMessage.format("add")))
-                return(await self.bot.say(returnMessage.format(mentionedMember, "muted")))
+                    return(await ctx.send(failedMessage.format("add")))
+                return(await ctx.send(returnMessage.format(mentionedMember, "muted")))
             else:
                 if mutedRole not in memberToToggleMute.roles:
-                    return(await self.bot.say("{} does not have the Muted role".format(mentionedMember)))
+                    return(await ctx.send("{} does not have the Muted role".format(mentionedMember)))
                 try:
-                    await self.bot.remove_roles(memberToToggleMute, mutedRole)
+                    await memberToToggleMute.remove_roles(mutedRole)
                 except discord.Forbidden:
-                    return(await self.bot.say(forbiddenMessage))
+                    return(await ctx.send(forbiddenMessage))
                 except discord.HTTPException:
-                    return(await self.bot.say(failedMessage.format("remove")))
-                return(await self.bot.say(returnMessage.format(mentionedMember, "unmuted")))
+                    return(await ctx.send(failedMessage.format("remove")))
+                return(await ctx.send(returnMessage.format(mentionedMember, "unmuted")))
     
-    @commands.command(pass_context=True)
+    @commands.command()
     async def mute(self, ctx): #cuck shitters
         await self.mute_function(ctx) 
 
-    @commands.command(pass_context=True)
+    @commands.command()
     async def unmute(self, ctx): #uncuck shitters
         await self.mute_function(ctx)
 
