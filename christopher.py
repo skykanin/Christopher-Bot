@@ -36,7 +36,8 @@ async def on_ready():
     print("Name: {}".format(bot.user.name))
     print("ID: {}".format(bot.user.id))
     print(discord.__version__)
-    await bot.change_presence(game=discord.Game(name="with Alan"))
+    game=discord.Game(name="with Alan")
+    await bot.change_presence(status=discord.Status.online, activity=game)
 
 @bot.event
 async def on_message(message, list_of_strings=['best lang', 'what is the best programming language?', 'what language is the best?']):
@@ -53,16 +54,6 @@ async def on_message(message, list_of_strings=['best lang', 'what is the best pr
     if "hot coco" in content:
         await bot.add_reaction(message, pepeComfy)       
     await bot.process_commands(message)
-
-@bot.event
-async def on_error(event):
-    bot.close()
-    bot.connect()
-
-""" @bot.event
-async def on_command_error(error, ctx):
-    if not str(error) == 'Command "pepo" is not found':
-        return(await bot.send_message(ctx.message.channel, error)) """
 
 if __name__ == "__main__":
     for extension in [f.replace('.py', '') for f in listdir(cogs_dir) if isfile(join(cogs_dir, f))]:
