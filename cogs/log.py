@@ -9,14 +9,14 @@ class Logger:
     def __init__(self, discordClient):
         self.bot = discordClient
         
-    async def on_server_join(self, server):
-        logs = next((channel for channel in server.channels if channel.name == "logs"), None)
+    async def on_guild_join(self, guild):
+        logs = next((channel for channel in guild.channels if channel.name == "logs"), None)
         if not logs:
             try:
                 everyone_perms = discord.PermissionOverwrite(write_messages=False)
-                everyone = discord.ChannelPermissions(target=server.default_role, overwrite=everyone_perms)
+                everyone = discord.ChannelPermissions(target=guild.default_role, overwrite=everyone_perms)
 
-                await self.bot.create_channel(server, 'logs', everyone, type=discord.ChannelType.text)
+                await guild.create_text_channel('logs', everyone, type=discord.ChannelType.text)
             except Exception as e:
                 print("create_channel:",e)
 
@@ -24,7 +24,7 @@ class Logger:
         embedDeletedMessage = discord.Embed(
             title="Deleted from #{}:".format(message.channel.name),
             description=message.content,
-            timestamp=message.timestamp,
+            timestamp=message.created_at,
             colour=0xff0000
         )
         embedDeletedMessage.set_author(
@@ -34,9 +34,9 @@ class Logger:
         embedDeletedMessage.set_footer(
             text="Deleted message"
         )
-        logsChannel = next((channel for channel in message.server.channels if channel.name == "logs"), None)
+        logsChannel = next((channel for channel in message.guild.channels if channel.name == "logs"), None)
         try:
-            await self.bot.send_message(logsChannel, embed=embedDeletedMessage)
+            await logsChannel.send(embed=embedDeletedMessage)
         except Exception as e:
             print(e)
 
@@ -47,7 +47,7 @@ class Logger:
         embedEditedMessage = discord.Embed(
             title="Before:",
             description=before.content,
-            timestamp=after.timestamp,
+            timestamp=after.created_at,
             colour=0x0000ff
         )
         embedEditedMessage.add_field(
@@ -62,9 +62,9 @@ class Logger:
         embedEditedMessage.set_footer(
             text="Edited message"
         )
-        logsChannel = next((channel for channel in after.server.channels if channel.name == "logs"), None)
+        logsChannel = next((channel for channel in after.guild.channels if channel.name == "logs"), None)
         try:
-            await self.bot.send_message(logsChannel, embed=embedEditedMessage)
+            await logsChannel.send(embed=embedEditedMessage)
         except Exception as e:
             print(e)
 
