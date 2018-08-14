@@ -31,18 +31,18 @@ class Util:
                         'osu_channel': 'osu_channel',
                         'admin_role': 'admin_role'}
     
-    @commands.command(pass_context=True)
+    @commands.command()
     @commands.cooldown(1,10.0,type=commands.BucketType.user)
     async def ping(self, ctx):
         now = datetime.utcnow()
-        delta = now - ctx.message.timestamp
-        return(await self.bot.say('Pong! Took {}ms'.format(delta.microseconds // 1000)))
+        delta = now - ctx.message.created_at
+        return(await ctx.send('Pong! Took {}ms'.format(delta.microseconds // 1000)))
 
-    """ @ping.error
-    async def ping_error(self, error, ctx):
-        return(await self.bot.say(error)) """
+    @ping.error
+    async def ping_error(self, ctx, error):
+        return(await ctx.send(error))
 
-    @commands.command(pass_context=True)
+    @commands.command()
     async def nc(self, ctx, timezone='America/New_York', url='http://feeds.feedburner.com/NakedCapitalism'):
         ncFeed = feedparser.parse(url)
         offset = pytz.timezone(timezone)
@@ -53,7 +53,7 @@ class Util:
                 todaysEntries.append(entry)
 
         if(len(todaysEntries) == 0):
-            return(await self.bot.say("No new posts today 😢"))
+            return(await ctx.send("No new posts today 😢"))
 
         ncEmbed = discord.Embed(
             title="Todays posts",
@@ -78,38 +78,38 @@ class Util:
             )
 
         try:
-            return(await self.bot.say(embed=ncEmbed))
+            return(await ctx.send(embed=ncEmbed))
         except Exception as e:
             print(e)
 
-    def check_roll_channel(self, server):
+    def check_roll_channel(self, guild):
         conn = sqlite3.connect(self.db)
         c = conn.cursor()
         with conn:
-            c.execute("SELECT roll_channel FROM {} WHERE guild_id=?".format(self.table), (server.id,))
+            c.execute("SELECT roll_channel FROM {} WHERE guild_id=?".format(self.table), (guild.id,))
             guild_settings = c.fetchone()
         conn.close()
         return(guild_settings[0])
 
-    @commands.command(pass_context=True)
+    @commands.command()
     @commands.cooldown(1,15.0,type=commands.BucketType.user)
     async def roll(self, ctx, arg, docs="https://github.com/borntyping/python-dice/blob/master/README.rst"):
-        roll_channel = self.check_roll_channel(ctx.message.server)
+        roll_channel = self.check_roll_channel(ctx.message.guild)
 
         if not roll_channel == ctx.message.channel.name:
-            return(await self.bot.say("You can only use this command in the {} channel".format(roll_channel)))
+            return(await ctx.send("You can only use this command in the {} channel".format(roll_channel)))
 
         try:
             result = dice.roll(str(arg))
-            return(await self.bot.say(result))
+            return(await ctx.send(result))
         except dice.DiceBaseException as e:
-            return(await self.bot.say("{0}\n\nIf you want the full documentation for the parser check this out:\n<{1}>".format(e.pretty_print(), docs)))
+            return(await ctx.send("{0}\n\nIf you want the full documentation for the parser check this out:\n<{1}>".format(e.pretty_print(), docs)))
     
     @roll.error
-    async def roll_error(self, error, ctx):
-        return(await self.bot.say(error))
+    async def roll_error(self, ctx, error):
+        return(await ctx.send(error))
 
-    @commands.command(pass_context=True)
+    @commands.command()
     @commands.cooldown(1,10.0,type=commands.BucketType.user)
     async def rms(self, ctx, album_id="7K5Gcmh", imgur_link="https://imgur.com/a/7K5Gcmh"):
         rms_images = self.imgurClient.get_album(album_id).images
@@ -119,13 +119,13 @@ class Util:
         image_embed = discord.Embed(title="Our GNU/Lord and GNU/Savior")
         image_embed.set_image(url=rand_image)
 
-        return(await self.bot.send_message(ctx.message.channel, embed=image_embed))
+        return(await ctx.send(embed=image_embed))
     
     @rms.error
-    async def roll_error(self, error, ctx):
-        return(await self.bot.say(error))
+    async def roll_error(self, ctx, error):
+        return(await ctx.send(error))
 
-    @commands.command(pass_context=True)
+    @commands.command()
     async def about(self, ctx):
         embed = discord.Embed(
             title = "I am Christopher Bot",
@@ -138,19 +138,19 @@ class Util:
             url = "https://github.com/skykanin",
             icon_url = "https://avatars0.githubusercontent.com/u/3789764?s=460&v=4"
         )
-        return(await self.bot.send_message(ctx.message.channel, embed=embed))
+        return(await ctx.send(embed=embed))
     
-    @commands.command(pass_context=False)
-    async def ts(self):
-        return(await self.bot.say("T Y P E    S A F E"))
+    @commands.command()
+    async def ts(self, ctx):
+        return(await ctx.send("T Y P E    S A F E"))
 
-    @commands.command(pass_context=False)
-    async def commands(self):
-        return(await self.bot.say("For a full list of all my commands and how to use them, checkout my github repository (https://github.com/skykanin/Christopher-Bot) README file"))
+    @commands.command()
+    async def commands(self, ctx):
+        return(await ctx.send("For a full list of all my commands and how to use them, checkout my github repository (https://github.com/skykanin/Christopher-Bot) README file"))
 
     async def on_message_delete(self, message):
         if message.content == "T Y P E    S A F E":
-            await self.bot.send_message(message.channel, "T Y P E    S A F E")
+            await message.channel.send("T Y P E    S A F E")
 
 def setup(bot):
     bot.add_cog(Util(bot))
