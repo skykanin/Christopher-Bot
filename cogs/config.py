@@ -109,7 +109,7 @@ class Config:
         return False
 
     # Command for handling custom queries
-    @commands.group(pass_context=True, invoke_without_command=True)
+    @commands.group(invoke_without_command=True)
     async def query(self, ctx, *args):
         if ctx.invoked_subcommand is None and args == "":
             return(await ctx.send('Invalid subcommand for query passed...'))
@@ -139,7 +139,7 @@ class Config:
                 except Exception as e:
                     return(await ctx.send(e))
 
-    @query.command(pass_context=True)
+    @query.command()
     async def print_settings(self, ctx):
         # Check if user has permission to use this command
         if not self.check_for_admin_role(ctx):
@@ -158,7 +158,7 @@ class Config:
 
         return(await ctx.send("```sql\nSELECT * FROM '{0}' WHERE guild_id={1};\n\n{2}```".format(self.table, guild_settings[0][10:], formated_guild_settings)))
 
-    @query.command(pass_context=True)
+    @query.command()
     async def switch_commands(self, ctx):
         # Check if user has permission to use this command
         if not self.check_for_admin_role(ctx):
@@ -188,7 +188,7 @@ class Config:
         conn.close()
 
     
-    @query.command(pass_context=True)
+    @query.command()
     async def update_roll_channel(self, ctx, channel : str):
         if not self.check_for_admin_role(ctx):
             return(await ctx.send("You don't have permission to use this command"))
@@ -205,7 +205,7 @@ class Config:
                 return(await ctx.send("Exception", e))
         conn.close()
 
-    @query.command(pass_context=True)
+    @query.command()
     async def update_osu_channel(self, ctx, channel : str):
         if not self.check_for_admin_role(ctx):
             return(await ctx.send("You don't have permission to use this command"))
@@ -222,7 +222,7 @@ class Config:
                 return(await ctx.send("Exception", e))
         conn.close()
 
-    @query.command(pass_context=True)
+    @query.command()
     async def update_admin_role(self, ctx, role : str):
         if not self.check_for_admin_role(ctx):
             return(await ctx.send("You don't have permission to use this command"))
