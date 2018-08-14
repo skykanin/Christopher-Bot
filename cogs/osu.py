@@ -29,28 +29,28 @@ class Osu:
         conn = sqlite3.connect(self.db)
         c = conn.cursor()
         with conn:
-            c.execute("SELECT {} FROM {} WHERE guild_id=?".format(self.settings['osu_channel'], self.table), (message.server.id,))
+            c.execute("SELECT {} FROM {} WHERE guild_id=?".format(self.settings['osu_channel'], self.table), (message.guild.id,))
             channel = c.fetchone()
         conn.close()
         return(not channel[0] == message.channel.name)
 
-    @commands.group(pass_context=True)
+    @commands.group()
     async def osu(self, ctx):
         if ctx.invoked_subcommand is None:
-            return(await self.bot.say('Invalid subcommand for osu passed...'))
+            return(await ctx.send('Invalid subcommand for osu passed...'))
 
-    @osu.command(pass_context=True)
+    @osu.command()
     async def profile(self, ctx, profile, mode_arg="standard"):
         if self.check_correct_channel(ctx.message):
-            return(await self.bot.say('You cannot use this command in this channel'))
+            return(await ctx.send('You cannot use this command in this channel'))
 
         if mode_arg not in self.modeMap:
-            return(await self.bot.say('Not a valid game mode'))
+            return(await ctx.send('Not a valid game mode'))
         else:
             result = self.osuApi.get_user(str(profile),mode=self.modeMap[mode_arg], event_days=31)
 
         if not result:
-            return(await self.bot.say("User doesn't exist"))
+            return(await ctx.send("User doesn't exist"))
 
         data = result[0] #get first and only result
         acc = str(math.ceil(data.accuracy*100)/100) + "%"
@@ -87,20 +87,20 @@ class Osu:
             icon_url = "http://s.ppy.sh/a/{}".format(data.user_id)
         )
 
-        return(await self.bot.send_message(ctx.message.channel, embed=profile_embed))
+        return(await ctx.send(embed=profile_embed))
 
-    @osu.command(pass_context=True)
+    @osu.command()
     async def best(self, ctx, username, mode_arg="standard"):
         if self.check_correct_channel(ctx.message):
-            return(await self.bot.say('You cannot use this command in this channel'))
+            return(await ctx.send('You cannot use this command in this channel'))
 
         if mode_arg not in self.modeMap:
-            return(await self.bot.say('Not a valid game mode'))
+            return(await ctx.send('Not a valid game mode'))
         else:
             result = self.osuApi.get_user_best(username,mode=self.modeMap[mode_arg], limit=1)
         
         if not result:
-            return(await self.bot.say("User doesn't exist"))
+            return(await ctx.send("User doesn't exist"))
         
         data = result[0] #get first and only result
         
@@ -127,13 +127,12 @@ class Osu:
             icon_url = "http://s.ppy.sh/a/{}".format(data.user_id)
         )
 
-        return(await self.bot.send_message(ctx.message.channel, embed=best_embed))
+        return(await ctx.send(embed=best_embed))
 
     @best.error
     @profile.error
-    async def error(self, error, ctx):
-        return(await self.bot.send_message(ctx.message.channel, str(error).capitalize()))
-
+    async def error(self, ctx, error):
+        return(await ctx.send(str(error).capitalize()))
 
 
 def setup(bot):
