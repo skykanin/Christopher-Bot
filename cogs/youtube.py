@@ -1,5 +1,4 @@
 import datetime
-#from datetime import datetime
 import discord
 from discord.ext import commands
 import json
@@ -29,20 +28,20 @@ class Youtube:
                         'osu_channel': 'osu_channel',
                         'admin_role': 'admin_role'}
 
-    def check_command_disabled(self, server):
+    def check_command_disabled(self, guild):
         conn = sqlite3.connect(self.db)
         c = conn.cursor()
         with conn:
-            c.execute("SELECT {} FROM {} WHERE guild_id=?".format(self.settings['commands_disabled'], self.table), (server.id,))
+            c.execute("SELECT {} FROM {} WHERE guild_id=?".format(self.settings['commands_disabled'], self.table), (guild.id,))
             commands_disabled = c.fetchone()
         conn.close()
         return(commands_disabled[0] == 0)
 
-    @commands.command(pass_context=True)
+    @commands.command()
     @commands.cooldown(1,10.0,type=commands.BucketType.user)
     async def youtube(self, ctx, stebenChannelId="UC554eY5jNUfDq3yDOJYirOQ", channelLink="https://www.youtube.com/channel/{}",videoLink="https://youtube.com/watch?v={}"):
-        if not self.check_command_disabled(ctx.message.server):
-            return(await self.bot.say("This command is disabled"))
+        if not self.check_command_disabled(ctx.message.guild):
+            return(await ctx.send("This command is disabled"))
 
         requestString ="https://www.googleapis.com/youtube/v3/search?part=snippet&channelId={0}&maxResults=1&type=video&order=date&key={1}"
         imageUrl = "https://i.ytimg.com/vi/{}/maxresdefault.jpg"
@@ -56,10 +55,10 @@ class Youtube:
             yt_object = json.loads(r.data.decode("utf-8"))
         except ValueError as err:
             print("youtube:",err)
-            return(await self.bot.say("Failed to decode JSON object: {}".format(err)))
+            return(await ctx.send("Failed to decode JSON object: {}".format(err)))
         except Exception as err:
             print(err)
-            return(await self.bot.say("Error {}".format(err)))
+            return(await ctx.send("Error {}".format(err)))
 
         embedVideo = discord.Embed(
             title = yt_object["items"][0]["snippet"]["title"],
@@ -81,7 +80,7 @@ class Youtube:
         utcTime = pytz.utc.localize(naiveTime)
         localTime = utcTime.astimezone(self.localTimeZone).strftime(self.timeFormat)
         embedVideo.set_footer(text = localTime)
-        return(await self.bot.send_message(ctx.message.channel, embed=embedVideo))
+        return(await ctx.send(embed=embedVideo))
 
     def getChannelImage(self, username="destiny"):
         requestString="https://www.googleapis.com/youtube/v3/channels?part=snippet%2C+contentDetails&forUsername={0}&key={1}".format(username, self.yt_api_key)
