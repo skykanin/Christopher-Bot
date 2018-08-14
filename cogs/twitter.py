@@ -33,11 +33,11 @@ class Twitter:
                         'osu_channel': 'osu_channel',
                         'admin_role': 'admin_role'}
 
-    def check_command_disabled(self, server):
+    def check_command_disabled(self, guild):
         conn = sqlite3.connect(self.db)
         c = conn.cursor()
         with conn:
-            c.execute("SELECT {} FROM {} WHERE guild_id=?".format(self.settings['commands_disabled'], self.table), (server.id,))
+            c.execute("SELECT {} FROM {} WHERE guild_id=?".format(self.settings['commands_disabled'], self.table), (guild.id,))
             commands_disabled = c.fetchone()
         conn.close()
         return(commands_disabled[0] == 0)
@@ -45,13 +45,13 @@ class Twitter:
     @commands.command(pass_context=True)
     @commands.cooldown(1,10.0,type=commands.BucketType.user)
     async def twitter(self, ctx, stebenTwitterId=962385627663695872):
-        if not self.check_command_disabled(ctx.message.server):
-            return(await self.bot.say("This command is disabled"))
+        if not self.check_command_disabled(ctx.message.guild):
+            return(await ctx.say("This command is disabled"))
 
         try:
             tweetJSON = self.api.GetUserTimeline(user_id=stebenTwitterId, count=1, exclude_replies=True)[0]
         except TwitterError as e:
-            return(await self.bot.send_message(ctx.message.channel, str(e)))
+            return(await ctx.send(str(e)))
 
         tweetObject = json.loads(str(tweetJSON))
 
@@ -69,7 +69,7 @@ class Twitter:
         utcTime = datetime.strptime(tweetObject["created_at"][4:], '%b %d %H:%M:%S %z %Y')
         localTime = utcTime.astimezone(self.localTimeZone).strftime(self.timeFormat)
         embedTweet.set_footer(text = localTime)
-        return(await self.bot.send_message(ctx.message.channel, embed=embedTweet))
+        return(await ctx.send(embed=embedTweet))
 
 def setup(bot):
     bot.add_cog(Twitter(bot))
