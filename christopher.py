@@ -23,11 +23,12 @@ extensions = (
     'cogs.admin',
     'cogs.config',
     'cogs.log',
+    'cogs.music',
     'cogs.osu',
     'cogs.twitch',
     'cogs.twitter',
     'cogs.util',
-    'cogs.youtube',
+    'cogs.youtube'
 )
 
 @bot.event
