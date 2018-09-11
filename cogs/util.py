@@ -17,22 +17,23 @@ with open("config.json") as f:
 client_id = config["imgur_client_id"]
 client_secret = config["imgur_client_secret"]
 
+
 class Util:
-    
+
     def __init__(self, discordClient):
         self.bot = discordClient
         self.imgurClient = pyimgur.Imgur(client_id)
         self.db = 'guild_settings.db'
         self.table = 'settings'
         self.settings = {'guild_id': 'guild_id',
-                        'guild_name': 'guild_name',
-                        'commands_disabled': 'commands_disabled',
-                        'roll_channel': 'roll_channel',
-                        'osu_channel': 'osu_channel',
-                        'admin_role': 'admin_role'}
-    
+                         'guild_name': 'guild_name',
+                         'commands_disabled': 'commands_disabled',
+                         'roll_channel': 'roll_channel',
+                         'osu_channel': 'osu_channel',
+                         'admin_role': 'admin_role'}
+
     @commands.command()
-    @commands.cooldown(1,10.0,type=commands.BucketType.user)
+    @commands.cooldown(1, 10.0, type=commands.BucketType.user)
     async def ping(self, ctx):
         now = datetime.utcnow()
         delta = now - ctx.message.created_at
@@ -59,7 +60,7 @@ class Util:
             title="Todays posts",
             colour=0xE86530
         )
-        
+
         ncEmbed.set_author(
             name="Naked Capitalism",
             url="https://www.nakedcapitalism.com",
@@ -67,7 +68,8 @@ class Util:
         )
 
         ncEmbed.set_footer(
-            text="Published on {}".format(datetime.now(tz=offset).strftime('%A EST time'))
+            text="Published on {}".format(
+                datetime.now(tz=offset).strftime('%A EST time'))
         )
 
         for entry in todaysEntries:
@@ -86,13 +88,14 @@ class Util:
         conn = sqlite3.connect(self.db)
         c = conn.cursor()
         with conn:
-            c.execute("SELECT roll_channel FROM {} WHERE guild_id=?".format(self.table), (guild.id,))
+            c.execute("SELECT roll_channel FROM {} WHERE guild_id=?".format(
+                self.table), (guild.id,))
             guild_settings = c.fetchone()
         conn.close()
         return(guild_settings[0])
 
     @commands.command()
-    @commands.cooldown(1,15.0,type=commands.BucketType.user)
+    @commands.cooldown(1, 15.0, type=commands.BucketType.user)
     async def roll(self, ctx, arg, docs="https://github.com/borntyping/python-dice/blob/master/README.rst"):
         roll_channel = self.check_roll_channel(ctx.message.guild)
 
@@ -104,13 +107,13 @@ class Util:
             return(await ctx.send(result))
         except dice.DiceBaseException as e:
             return(await ctx.send("{0}\n\nIf you want the full documentation for the parser check this out:\n<{1}>".format(e.pretty_print(), docs)))
-    
+
     @roll.error
     async def roll_error(self, ctx, error):
         return(await ctx.send(error))
 
     @commands.command()
-    @commands.cooldown(1,10.0,type=commands.BucketType.user)
+    @commands.cooldown(1, 10.0, type=commands.BucketType.user)
     async def rms(self, ctx, album_id="7K5Gcmh", imgur_link="https://imgur.com/a/7K5Gcmh"):
         rms_images = self.imgurClient.get_album(album_id).images
         rand_int = random.randint(0, len(rms_images)-1)
@@ -120,7 +123,7 @@ class Util:
         image_embed.set_image(url=rand_image)
 
         return(await ctx.send(embed=image_embed))
-    
+
     @rms.error
     async def roll_error(self, ctx, error):
         return(await ctx.send(error))
@@ -128,18 +131,18 @@ class Util:
     @commands.command()
     async def about(self, ctx):
         embed = discord.Embed(
-            title = "I am Christopher Bot",
-            description = "I am an administration bot made by Skykanin, written in Python using the discord.py API. If you want to look at my code check out my github repository and if you find any bugs bother Skykanin about it.",
-            url = "https://github.com/skykanin/Christopher-Bot",
-            color = 0xffffff
+            title="I am Christopher Bot",
+            description="I am an administration bot made by Skykanin, written in Python using the discord.py API. If you want to look at my code check out my github repository and if you find any bugs bother Skykanin about it.",
+            url="https://github.com/skykanin/Christopher-Bot",
+            color=0xffffff
         )
         embed.set_author(
-            name = "skykanin",
-            url = "https://github.com/skykanin",
-            icon_url = "https://avatars0.githubusercontent.com/u/3789764?s=460&v=4"
+            name="skykanin",
+            url="https://github.com/skykanin",
+            icon_url="https://avatars0.githubusercontent.com/u/3789764?s=460&v=4"
         )
         return(await ctx.send(embed=embed))
-    
+
     @commands.command()
     async def ts(self, ctx):
         return(await ctx.send("T Y P E    S A F E"))
@@ -151,6 +154,7 @@ class Util:
     async def on_message_delete(self, message):
         if message.content == "T Y P E    S A F E":
             await message.channel.send("T Y P E    S A F E")
+
 
 def setup(bot):
     bot.add_cog(Util(bot))

@@ -14,7 +14,8 @@ with open("config.json") as f:
 bot_description = "General purpose bot made with sweat and tears by skykanin"
 bot_prefix = config["prefix"]
 
-bot = commands.Bot(description=bot_description, command_prefix=bot_prefix, pm_help=None, help_attrs=dict(hidden=True))
+bot = commands.Bot(description=bot_description, command_prefix=bot_prefix,
+                   pm_help=None, help_attrs=dict(hidden=True))
 
 # this specifies what extensions to load when the bot starts up (from this directory)
 cogs_dir = "cogs"
@@ -23,7 +24,6 @@ extensions = (
     'cogs.admin',
     'cogs.config',
     'cogs.log',
-    'cogs.music',
     'cogs.osu',
     'cogs.twitch',
     'cogs.twitter',
@@ -31,14 +31,16 @@ extensions = (
     'cogs.youtube'
 )
 
+
 @bot.event
 async def on_ready():
     print("Logged in")
     print("Name: {}".format(bot.user.name))
     print("ID: {}".format(bot.user.id))
     print(discord.__version__)
-    game=discord.Game(name="with Alan")
+    game = discord.Game(name="with Alan")
     await bot.change_presence(status=discord.Status.online, activity=game)
+
 
 @bot.event
 async def on_message(message, list_of_strings=['best lang', 'what is the best programming language?', 'what language is the best?']):
@@ -53,7 +55,7 @@ async def on_message(message, list_of_strings=['best lang', 'what is the best pr
     if "the power of js" in content:
         await bot.add_reaction(message, godstiny)
     if "hot coco" in content:
-        await bot.add_reaction(message, pepeComfy)       
+        await bot.add_reaction(message, pepeComfy)
     await bot.process_commands(message)
 
 if __name__ == "__main__":
