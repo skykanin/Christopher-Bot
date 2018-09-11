@@ -7,5 +7,16 @@
 #Remove config files with sensitive data
 config.json
 
-#Removes folder with bytecode for python
+#Byte-compiled / optimized / DLL files
 __pycache__/
+*.py[cod]
+*$py.class
+
+#Remove database file
+guild_settings.db
+
+#Remove DS_Store
+.DS_Store
+
+#Remove .egg-info
+Christopher_Bot.egg-info
