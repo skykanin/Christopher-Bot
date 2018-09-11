@@ -17,3 +17,6 @@ guild_settings.db
 
 #Remove DS_Store
 .DS_Store
+
+#Remove .egg-info
+Christopher_Bot.egg-info
