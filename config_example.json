@@ -1,0 +1,13 @@
+{
+    "token": "discord bot token goes here",
+    "prefix": "bot command prefix goes here",
+    "consumer_key": "twitter consumer key goes here",
+    "consumer_secret": "twitter secret goes here",
+    "access_token_key": "twitter token key goes here",
+    "access_token_secret": "twitter token secret goes here",
+    "twitch_client_id": "twitch client id goes here",
+    "yt_api_key": "youtube api key goes here",
+    "osu_key": "osukey goes here",
+    "imgur_client_id": "imgur client id goes here",
+    "imgur_client_secret": "imgur client secret goes here"
+}
