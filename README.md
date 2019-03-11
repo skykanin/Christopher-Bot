@@ -48,7 +48,7 @@ by the bot.
 This bot also logs deleted and edited messages. When this bot is added to a guild it will make a #logs channel if it doesn't already exist and post all deleted and edited messages there.
 
 ## Download the bot yourself
-If you want to download and run the bot yourself you need to have [Python3.6.5](https://www.python.org/downloads/release/python-365/) installed. You can download the bot by cloning this repository. To be able to use the bot you need to have all the api keys in your `config.json` file. I have added a `config_example.json` file for reference. To run the bot you first need to install all the dependencies by going into the root directory and running the command ```pipenv install```. Then simply start the bot by running ```python christopher.py```
+If you want to download and run the bot yourself you need to have [Python3.6.5](https://www.python.org/downloads/release/python-365/) installed. You can download the bot by cloning this repository. To be able to use the bot you need to have all the api keys in your `config.json` file. I have added a `config_example.json` file for reference. To run the bot you first need to install all the dependencies by going into the root directory and running the command ```pipenv install```. Then simply start the bot by running ```pipenv run python christopher.py```
 
 Install pipenv if it says not found
 
