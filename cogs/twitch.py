@@ -8,7 +8,7 @@ with open("config.json") as f:
 
 clientId = config["twitch_client_id"]
 
-class Twitch():
+class Twitch(commands.Cog):
 
     def __init__(self, discordClient):
         self.bot = discordClient

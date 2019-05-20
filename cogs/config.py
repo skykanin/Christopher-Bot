@@ -6,7 +6,7 @@ import os
 import sqlite3
 from sqlite3 import OperationalError, IntegrityError
 
-class Config:
+class Config(commands.Cog):
 
     def __init__(self, discordClient):
         self.bot = discordClient

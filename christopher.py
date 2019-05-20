@@ -41,7 +41,7 @@ async def on_ready():
     game = discord.Game(name="with Alan")
     await bot.change_presence(status=discord.Status.online, activity=game)
 
-
+'''
 @bot.event
 async def on_message(message, list_of_strings=['best lang', 'what is the best programming language?', 'what language is the best?']):
 
@@ -57,6 +57,7 @@ async def on_message(message, list_of_strings=['best lang', 'what is the best pr
     if "hot coco" in content:
         await bot.add_reaction(message, pepeComfy)
     await bot.process_commands(message)
+'''
 
 if __name__ == "__main__":
     for extension in [f.replace('.py', '') for f in listdir(cogs_dir) if isfile(join(cogs_dir, f))]:

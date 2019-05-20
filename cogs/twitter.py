@@ -16,7 +16,7 @@ consumerSecret = config["consumer_secret"]
 accessTokenKey = config["access_token_key"]
 accessTokenSecret = config["access_token_secret"]
 
-class Twitter:
+class Twitter(commands.Cog):
     
     def __init__(self, discordClient):
         self.bot = discordClient

@@ -4,7 +4,7 @@ from discord.ext import commands
 from discord.ext.commands import Bot
 
 
-class Logger:
+class Logger(commands.Cog):
     
     def __init__(self, discordClient):
         self.bot = discordClient
@@ -13,10 +13,12 @@ class Logger:
         logs = next((channel for channel in guild.channels if channel.name == "logs"), None)
         if not logs:
             try:
-                everyone_perms = discord.PermissionOverwrite(write_messages=False)
-                everyone = discord.ChannelPermissions(target=guild.default_role, overwrite=everyone_perms)
+                overwrites = {
+                    guild.default_role: discord.PermissionOverwrite(write_messages=False),
+                    guild.me: discord.PermissionOverwrite(read_messages=True)
+                }
 
-                await guild.create_text_channel('logs', everyone, type=discord.ChannelType.text)
+                await guild.create_text_channel('logs', overwrites, type=discord.ChannelType.text)
             except Exception as e:
                 print("create_channel:",e)
 

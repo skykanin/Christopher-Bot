@@ -3,8 +3,7 @@ import discord
 from discord.ext import commands
 import sqlite3
 
-class Admin:
-    
+class Admin(commands.Cog):
     def __init__(self, discordClient):
         self.bot = discordClient
         self.db = 'guild_settings.db'

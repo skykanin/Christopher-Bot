@@ -6,7 +6,7 @@ from osuapi import OsuApi, ReqConnector, enums
 import json
 import sqlite3
 
-class Osu:
+class Osu(commands.Cog):
 
     def __init__(self, discordClient):
 

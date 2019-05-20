@@ -12,7 +12,7 @@ with open("config.json") as f:
 
 yt_api_key = config["yt_api_key"]
 
-class Youtube:
+class Youtube(commands.Cog):
     
     def __init__(self, discordClient):
         self.bot = discordClient

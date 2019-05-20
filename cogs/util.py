@@ -18,7 +18,7 @@ client_id = config["imgur_client_id"]
 client_secret = config["imgur_client_secret"]
 
 
-class Util:
+class Util(commands.Cog):
 
     def __init__(self, discordClient):
         self.bot = discordClient
