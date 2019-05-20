@@ -6,7 +6,7 @@ verify_ssl = true
 [dev-packages]
 
 [packages]
-aiohttp = "==1.0.5"
+aiohttp = ">=1.0.5"
 dice = "==2.2.0"
 emoji = "==0.5.0"
 feedparser = "==5.2.1"
@@ -15,7 +15,7 @@ pyimgur = "==0.6.0"
 python-twitch-client = "==0.5.1"
 python-twitter = "==3.4.1"
 pytz = "==2018.3"
-urllib3 = ">=1.23"
+urllib3 = ">=1.24.2"
 certifi = "==2018.1.18"
 chardet = "==3.0.4"
 docopt = "==0.6.2"
@@ -27,9 +27,9 @@ pyparsing = "==2.2.0"
 requests = ">=2.20.0"
 requests-oauthlib = "==0.8.0"
 six = "==1.11.0"
-websockets = "==3.4"
+websockets = ">=3.4"
 youtube_dl = "==2019.2.18"
-async_timeout = "==2.0.1"
+async_timeout = ">=2.0.1"
 astroid = "==1.6.2"
 discord = "==0.0.2"
 isort = "==4.3.4"
@@ -39,7 +39,7 @@ py4j = "==0.10.7"
 pylint = "==1.8.3"
 pyspark = "==2.4.0"
 wrapt = "==1.10.11"
-discord-py = {extras = ["voice"],git = "https://github.com/Rapptz/discord.py",ref = "rewrite"}
+discord-py = "==1.1.1"
 
 [requires]
 python_version = "3.6.5"
